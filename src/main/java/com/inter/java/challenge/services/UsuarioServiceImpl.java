@@ -3,11 +3,11 @@ package com.inter.java.challenge.services;
 
 
 import com.inter.java.challenge.api.UsuarioApi;
+import com.inter.java.challenge.api.model.PaginaUsuario;
+import com.inter.java.challenge.api.model.UsuarioRequest;
+import com.inter.java.challenge.api.model.UsuarioResponse;
 import com.inter.java.challenge.business.UsuarioBusiness;
-import com.inter.java.challenge.model.PaginaUsuario;
-import com.inter.java.challenge.model.Usuario;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -26,7 +26,12 @@ public class UsuarioServiceImpl implements UsuarioApi {
     }
 
     @Override
-    public Usuario buscarUsuarioPorId(Long id){
+    public UsuarioResponse buscarUsuarioPorId(Long id){
         return usuarioBusiness.buscarUsuarioPorId(id);
+    }
+
+    @Override
+    public UsuarioResponse salvarUsuario(UsuarioRequest usuarioRequest){
+        return usuarioBusiness.salvarNovoUsuario(usuarioRequest);
     }
 }

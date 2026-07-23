@@ -1,6 +1,7 @@
 package com.inter.java.challenge.workflows.factory;
 
-import com.inter.java.challenge.model.PaginaUsuario;
+import com.inter.java.challenge.api.model.PaginaUsuario;
+import com.inter.java.challenge.api.model.UsuarioResponse;
 import org.springframework.stereotype.Component;
 
 import static java.util.Collections.emptyList;

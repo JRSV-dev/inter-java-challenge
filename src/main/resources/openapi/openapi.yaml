@@ -51,7 +51,7 @@ paths:
       tags:
         - Usuario
       summary: Cria um novo usuário.
-      operationId: salvarUsuarios
+      operationId: salvarUsuario
       requestBody:
         required: true
         content:
@@ -65,7 +65,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Usuario'
+                $ref: '#/components/schemas/UsuarioResponse'
 
   /usuarios/{id}:
 
@@ -89,7 +89,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Usuario'
+                $ref: '#/components/schemas/UsuarioResponse'
 
         '404':
           description: Usuário não encontrado.
@@ -98,7 +98,7 @@ components:
 
   schemas:
 
-    Usuario:
+    UsuarioResponse:
       type: object
 
       properties:
@@ -157,7 +157,7 @@ components:
         conteudo:
           type: array
           items:
-            $ref: '#/components/schemas/Usuario'
+            $ref: '#/components/schemas/UsuarioResponse'
         pagina:
           type: integer
           example: 0
