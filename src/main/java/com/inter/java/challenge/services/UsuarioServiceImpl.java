@@ -21,12 +21,12 @@ public class UsuarioServiceImpl implements UsuarioApi {
     private final UsuarioBusiness usuarioBusiness;
 
     @Override
-    public ResponseEntity<PaginaUsuario> buscarUsuarios(Integer pagina, Integer quantidadePorPagina){
+    public PaginaUsuario buscarUsuarios(Integer pagina, Integer quantidadePorPagina){
         return usuarioBusiness.buscarUsuarios(pagina, quantidadePorPagina);
     }
 
     @Override
-    public ResponseEntity<Usuario> buscarUsuarioPorId(Long id){
+    public Usuario buscarUsuarioPorId(Long id){
         return usuarioBusiness.buscarUsuarioPorId(id);
     }
 }

@@ -44,4 +44,17 @@
         FROM usuarios_paginados
     </select>
 
+    <select
+            id="buscarUsuarioPorId"
+           resultType="com.inter.java.challenge.model.Usuario">
+        SELECT
+        u.id,
+        u.nome_completo,
+        u.email,
+        u.identificador,
+        u.senha
+        FROM usuarios u
+        WHERE u.id = #{id}
+
+    </select>
 </mapper>

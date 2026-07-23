@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 import static java.util.Collections.emptyList;
 
 @Component
-public class PaginaUsuarioFactory {
+public class PaginaUsuarioVaziaFactory {
 
     public PaginaUsuario criarRetornoVazio(
             Integer pagina,

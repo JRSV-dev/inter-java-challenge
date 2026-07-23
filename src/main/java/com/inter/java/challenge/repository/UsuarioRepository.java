@@ -13,4 +13,6 @@ public interface UsuarioRepository {
 
     Optional<PaginaUsuario> buscarTodosUsuarios(@Param("quantidade_pagina") Integer quantidadePorPagina,
                                  @Param("pagina") Integer pagina);
+
+    Optional<Usuario> buscarUsuarioPorId(@Param("id") Long id);
 }
