@@ -4,14 +4,14 @@
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.inter.java.challenge.repository.UsuarioRepository">
-    <resultMap id="paginaUsuarioResultadoMap" type="com.inter.java.challenge.api.model.PaginaUsuario">
+    <resultMap id="paginaUsuarioResultadoMap" type="com.inter.java.challenge.data.model.Pagina">
 
         <result property="pagina" column="pagina"/>
         <result property="quantidadePagina" column="quantidade_pagina"/>
         <result property="totalElementos" column="total_elementos"/>
         <result property="totalPaginas" column="total_paginas"/>
 
-        <collection property="conteudo" ofType="com.inter.java.challenge.model.Usuario">
+        <collection property="conteudo" ofType="com.inter.java.challenge.data.model.Usuario">
             <id property="id" column="id"/>
             <result property="nomeCompleto" column="nome_completo"/>
             <result property="email" column="email"/>
@@ -25,7 +25,7 @@
         WITH usuarios_paginados AS (
         SELECT
         u.id,
-        u.nome_completo AS nomeCompleto,
+        u.nome_completo,
         u.email,
         u.identificador,
         u.senha,
@@ -46,7 +46,7 @@
 
     <select
             id="buscarUsuarioPorId"
-           resultType="com.inter.java.challenge.model.Usuario">
+           resultType="com.inter.java.challenge.data.model.Usuario">
         SELECT
         u.id,
         u.nome_completo as nomeCompleto,
@@ -55,12 +55,13 @@
         u.senha
         FROM usuarios u
         WHERE u.id = #{usuarioId}
+        AND u.data_exclusao is null
 
     </select>
 
     <select
             id="buscarUsuarioPorIdentificador"
-            resultType="com.inter.java.challenge.model.Usuario">
+            resultType="com.inter.java.challenge.data.model.Usuario">
         SELECT
         u.id,
         u.nome_completo as nomeCompleto,
@@ -69,12 +70,13 @@
         u.senha
         FROM usuarios u
         WHERE u.identificador = #{identificador}
+        AND u.data_exclusao is null
 
     </select>
 
     <select
             id="buscarUsuarioPorEmail"
-            resultType="com.inter.java.challenge.model.Usuario">
+            resultType="com.inter.java.challenge.data.model.Usuario">
         SELECT
         u.id,
         u.nome_completo as nomeCompleto,
@@ -83,12 +85,13 @@
         u.senha
         FROM usuarios u
         WHERE u.email= #{email}
+        AND u.data_exclusao is null
 
     </select>
 
 
     <insert id="salvarNovoUsuario"
-            parameterType="com.inter.java.challenge.model.Usuario"
+            parameterType="com.inter.java.challenge.data.model.Usuario"
             useGeneratedKeys="true"
             keyProperty="id"
             keyColumn="ID">
@@ -97,12 +100,14 @@
         NOME_COMPLETO,
         EMAIL,
         IDENTIFICADOR,
+        TIPO_USUARIO,
         SENHA
         )
         VALUES (
         #{nomeCompleto},
         #{email},
         #{identificador},
+        #{tipoUsuario},
         #{senha}
         )
 

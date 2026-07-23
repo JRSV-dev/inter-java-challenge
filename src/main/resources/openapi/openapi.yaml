@@ -120,9 +120,9 @@ components:
           description: CPF ou CNPJ do usuáiro.
           pattern: '^(\d{11}|\d{14})$'
 
-        senha:
+        tipoUsuario:
           type: string
-          description: Senha de acesso do usuário.
+          description: Tipo do usuario Cpf ou Cnpj.
 
     UsuarioRequest:
       type: object
