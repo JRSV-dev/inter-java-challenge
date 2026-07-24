@@ -5,7 +5,8 @@ import java.math.BigDecimal;
 public record TransferirDinheiro(
         Long usuarioOrigemId,
         Long usuarioDestinoId,
-        BigDecimal valorReal
+        BigDecimal valorReal,
+        BigDecimal valorDolar
 ) {
 
 }

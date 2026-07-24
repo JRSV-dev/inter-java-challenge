@@ -283,8 +283,10 @@ components:
 
         valorReal:
           type: number
-          minimum: 0.01
-          multipleOf: 0.01
+          example: 1000.00
+
+        valorDolar:
+          type: number
           example: 1000.00
 
     TransferenciaResponse:
