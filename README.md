@@ -74,7 +74,7 @@ src/main/resources
 
 - `services`: recebe a chamada HTTP por meio das interfaces geradas pelo
   OpenAPI e delega para a camada de negócio.
-- `business`: organiza o fluxo completo do caso de uso.
+- `business`: define a fronteira transacional e delega as etapas do caso de uso.
 - `workflows`: concentra responsabilidades específicas, como buscar carteira,
   converter moeda, validar limite, debitar e creditar saldo.
 - `repository`: define as operações de leitura e escrita.
@@ -244,6 +244,11 @@ A validação utiliza a moeda de origem:
 O débito SQL também verifica se ainda existe saldo suficiente no momento da
 atualização.
 
+Os retornos dos comandos de débito e crédito são verificados. Cada comando deve
+alterar exatamente uma carteira. Se o MyBatis retornar `0` ou um valor maior que
+`1`, a aplicação lança `ATUALIZACAO_CARTEIRA_INCONSISTENTE` e interrompe a
+operação.
+
 ### Concorrência e transação
 
 As carteiras envolvidas são consultadas com `FOR UPDATE`. Isso mantém os
@@ -254,6 +259,14 @@ O método principal está anotado com `@Transactional`. Débito, crédito e
 persistência do histórico participam da mesma transação. Se uma exceção de
 negócio ou persistência interromper o fluxo, as alterações realizadas pela
 transação são revertidas.
+
+Para reduzir o acoplamento, `TransferenciaBusiness` depende apenas do mapper e
+dos workflows de preparação e execução. Internamente, o fluxo é separado em:
+
+1. consulta da cotação e cálculo dos valores;
+2. bloqueio das carteiras e validação das regras;
+3. débito e crédito dos saldos;
+4. persistência e criação do resultado.
 
 ### Resposta
 
@@ -407,6 +420,7 @@ o cenário exato:
 | CPF/CNPJ já cadastrado | `409` | `USUARIO_IDENTIFICADOR_JA_CADASTRADO` | `Usuário já cadastrado com este identificador.` |
 | Saldo insuficiente | `422` | `SALDO_INSUFICIENTE` | `Saldo insuficiente para realizar a transferência.` |
 | Limite diário excedido | `422` | `LIMITE_DIARIO_EXCEDIDO` | `Limite diário de transferência excedido.` |
+| Atualização inconsistente da carteira | `409` | `ATUALIZACAO_CARTEIRA_INCONSISTENTE` | `Não foi possível atualizar a carteira de forma consistente.` |
 | Cotação indisponível | `503` | `COTACAO_INDISPONIVEL` | `Nenhuma cotação disponível foi encontrada.` |
 
 ## Endpoints
@@ -569,8 +583,6 @@ Cobrem:
 - fallback da cotação de sábado e domingo;
 - resposta sem cotações disponíveis.
 
-As integrações externas e os repositórios são simulados nos testes unitários,
-mantendo cada unidade isolada.
 
 ### Testes de integração
 
@@ -591,8 +603,3 @@ Utilizam Spring Boot, MockMvc, WireMock e instâncias H2 isoladas para validar:
   OData;
 - desserialização da resposta simulada do Banco Central;
 - fallback da cotação de sábado para a última cotação disponível.
-
-Nos testes de transferência, a porta de busca da cotação é substituída por um
-mock. No teste específico do OpenFeign, o WireMock atua como servidor HTTP
-local. Assim, o contrato externo é validado sem depender de rede ou de
-resultados variáveis do Banco Central.
