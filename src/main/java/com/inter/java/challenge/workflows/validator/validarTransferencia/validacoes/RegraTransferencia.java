@@ -1,4 +1,4 @@
-package com.inter.java.challenge.workflows.validator.validarTranferencia.validacoes;
+package com.inter.java.challenge.workflows.validator.validarTransferencia.validacoes;
 
 import com.inter.java.challenge.data.records.ContextoTransferencia;
 

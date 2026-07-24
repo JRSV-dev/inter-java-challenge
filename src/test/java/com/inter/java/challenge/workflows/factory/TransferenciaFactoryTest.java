@@ -14,9 +14,9 @@ import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class TransfereciaFactoryTest {
+class TransferenciaFactoryTest {
 
-    private final TransfereciaFactory factory = new TransfereciaFactory();
+    private final TransferenciaFactory factory = new TransferenciaFactory();
 
     @Test
     void deveCriarHistoricoComMoedaValoresECotacaoDaOperacao() {

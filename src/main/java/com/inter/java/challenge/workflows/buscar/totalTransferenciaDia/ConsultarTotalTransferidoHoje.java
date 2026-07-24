@@ -1,4 +1,4 @@
-package com.inter.java.challenge.workflows.buscar.totalTransfereciaDia;
+package com.inter.java.challenge.workflows.buscar.totalTransferenciaDia;
 
 import com.inter.java.challenge.data.records.Periodo;
 import com.inter.java.challenge.repository.TransferenciaRepository;

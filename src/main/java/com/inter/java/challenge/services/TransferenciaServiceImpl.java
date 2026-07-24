@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Service
 @RestController
 @RequiredArgsConstructor
-public class TranferenciaServiceImpl implements TransferenciasApi {
+public class TransferenciaServiceImpl implements TransferenciasApi {
 
     private final TransferenciaBusiness transferenciaBusiness;
 

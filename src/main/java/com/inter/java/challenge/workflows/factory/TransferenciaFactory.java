@@ -13,14 +13,10 @@ import static com.inter.java.challenge.data.enums.StatusTransferencia.CONCLUIDA;
 
 @Slf4j
 @Component
-public class TransfereciaFactory {
+public class TransferenciaFactory {
 
-    public Transferencia criar(
-            TransferirDinheiro comando,
-            CotacaoDolar cotacao,
-            ValoresTransferencia valores,
-            LocalDateTime agora
-    ) {
+    public Transferencia criar(TransferirDinheiro comando, CotacaoDolar cotacao, ValoresTransferencia valores,
+                               LocalDateTime agora) {
 
         log.info("Criando registro de transferencia.");
         Transferencia transferencia = new Transferencia();

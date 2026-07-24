@@ -1,3 +1,4 @@
+-- Dados demonstrativos carregados na inicialização local.
 INSERT INTO USUARIOS (
     NOME_COMPLETO,
     EMAIL,
@@ -7,9 +8,9 @@ INSERT INTO USUARIOS (
     DATA_CRIACAO
 )
 VALUES (
-    'Jhondsaata',
-    'j1rs@co21.443c',
-    '07308093581',
+    'Ana Martins',
+    'ana.martins@example.com',
+    '52998224725',
     'PF',
     '$2a$10$lHtkZ/SgzCBfj99r13Xj9.FYx56rFJDSg9uZFxfj4pxqyEtD6c0yy',
     CURRENT_TIMESTAMP
@@ -24,9 +25,9 @@ INSERT INTO USUARIOS (
     DATA_CRIACAO
 )
 VALUES (
-    'Jhondsaata',
-    'j1rs@3o21.443c',
-    '12345678912345',
+    'Empresa Exemplo Ltda.',
+    'financeiro@empresa-exemplo.com',
+    '11222333000181',
     'PJ',
     '$2a$10$UtzA3Q2sXr9SDexO0bzcMOc3yX9UytZm0uo4RdScAf1faSlnFg6Au',
     CURRENT_TIMESTAMP

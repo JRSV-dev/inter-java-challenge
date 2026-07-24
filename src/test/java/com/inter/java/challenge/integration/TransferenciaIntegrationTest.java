@@ -130,7 +130,9 @@ class TransferenciaIntegrationTest {
                                   "valor": 100.00
                                 }
                                 """))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.mensagem")
+                        .value("Saldo insuficiente para realizar a transferência."));
 
         assertSaldo(1L, "50.00", "50.0000");
         assertSaldo(2L, "1000.00", "50.0000");

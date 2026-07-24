@@ -17,7 +17,7 @@
 
     <groupId>com.inter.java.challenge</groupId>
     <artifactId>inter-java-challenge</artifactId>
-    <version>1.2.2</version>
+    <version>1.2.3</version>
 
     <name>inter-java-challenge</name>
     <description>Desafio técnico Java - Inter</description>
@@ -36,6 +36,7 @@
             3.6.0
         </build-helper-maven-plugin.version>
         <spring-cloud.version>2025.0.0</spring-cloud.version>
+        <wiremock-spring-boot.version>4.0.9</wiremock-spring-boot.version>
     </properties>
 
     <dependencies>
@@ -94,6 +95,13 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.wiremock.integrations</groupId>
+            <artifactId>wiremock-spring-boot</artifactId>
+            <version>${wiremock-spring-boot.version}</version>
             <scope>test</scope>
         </dependency>
 

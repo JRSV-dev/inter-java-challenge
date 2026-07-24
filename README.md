@@ -42,6 +42,7 @@ H2 como banco de dados local.
 | Swagger UI | Visualização e execução dos endpoints |
 | JUnit, Mockito e AssertJ | Testes unitários |
 | Spring Boot Test e MockMvc | Testes de integração |
+| WireMock | Simulação HTTP do Banco Central nos testes de integração |
 
 ## Organização do código
 
@@ -63,7 +64,7 @@ Recursos complementares:
 ```text
 src/main/resources
 ├── dbo/schema.sql          criação das tabelas, constraints e índices
-├── dbo/data.sql            dados iniciais do ambiente local
+├── dbo/data.sql            dados demonstrativos do ambiente local
 ├── mappers/                comandos SQL do MyBatis
 ├── openapi/openapi.yaml    contrato HTTP da aplicação
 └── application.properties configurações locais
@@ -349,9 +350,12 @@ As constraints da tabela garantem:
 O índice composto por usuário de origem e data da transferência atende à
 consulta usada no cálculo do limite diário.
 
-O arquivo `dbo/schema.sql` contém somente a estrutura do banco. Os usuários e
-as carteiras disponíveis para execução local ficam separados em
-`dbo/data.sql`.
+O Spring executa os dois scripts durante a inicialização:
+
+- `dbo/schema.sql`: cria tabelas, constraints e índice;
+- `dbo/data.sql`: insere os usuários e carteiras usados na execução local.
+
+Estrutura e dados ficam separados para facilitar a leitura e a manutenção.
 
 ## Tratamento de erros
 
@@ -409,6 +413,7 @@ Configuração padrão:
 spring.datasource.url=jdbc:h2:mem:interdb
 spring.datasource.username=sa
 spring.datasource.password=
+spring.sql.init.mode=always
 spring.sql.init.schema-locations=classpath:dbo/schema.sql
 spring.sql.init.data-locations=classpath:dbo/data.sql
 
@@ -538,7 +543,7 @@ mantendo cada unidade isolada.
 
 ### Testes de integração
 
-Utilizam Spring Boot, MockMvc e uma instância H2 isolada para validar:
+Utilizam Spring Boot, MockMvc, WireMock e instâncias H2 isoladas para validar:
 
 - contrato HTTP do endpoint de transferência;
 - integração entre business, workflows, MyBatis e banco;
@@ -548,7 +553,13 @@ Utilizam Spring Boot, MockMvc e uma instância H2 isolada para validar:
 - precisão dos valores em dólar e da cotação;
 - persistência da moeda de origem;
 - constraints de moeda e status;
-- manutenção dos saldos quando a operação é rejeitada.
+- manutenção dos saldos quando a operação é rejeitada;
+- contrato HTTP gerado pelo OpenFeign, incluindo caminho, datas e parâmetros
+  OData;
+- desserialização da resposta simulada do Banco Central;
+- fallback da cotação de sábado para a última cotação disponível.
 
-A integração com o Banco Central é substituída por um mock nos testes de
-transferência, evitando dependência de rede e resultados variáveis.
+Nos testes de transferência, a porta de busca da cotação é substituída por um
+mock. No teste específico do OpenFeign, o WireMock atua como servidor HTTP
+local. Assim, o contrato externo é validado sem depender de rede ou de
+resultados variáveis do Banco Central.

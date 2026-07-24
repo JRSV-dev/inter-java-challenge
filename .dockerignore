@@ -1,0 +1,15 @@
+.git
+.gitattributes
+.gitignore
+.idea
+.mvn
+.vscode
+target
+build
+*.iml
+*.log
+HELP.md
+README.md
+compose.yaml
+mvnw
+mvnw.cmd

@@ -30,7 +30,7 @@ public class BuscarCarteira {
         List<CarteiraTransferencia> carteiras = carteiraRepository.bloquearCarteiras(transferencia.usuarioOrigemId(),transferencia.usuarioDestinoId());
         CarteiraTransferencia origem = localizar(carteiras, transferencia.usuarioOrigemId());
         CarteiraTransferencia destino = localizar(carteiras, transferencia.usuarioDestinoId());
-        log.info("Carteiras de origiem e destino recebidas.");
+        log.info("Carteiras de origem e destino recebidas.");
         return new CarteirasTransferencia(origem, destino);
     }
 

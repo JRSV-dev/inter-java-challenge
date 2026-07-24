@@ -14,13 +14,13 @@ import com.inter.java.challenge.mapper.TransferenciaMapper;
 import com.inter.java.challenge.repository.TransferenciaRepository;
 import com.inter.java.challenge.workflows.buscar.buscarCarteira.BuscarCarteira;
 import com.inter.java.challenge.workflows.buscar.buscarCotacao.BuscarCotacaoDolar;
-import com.inter.java.challenge.workflows.buscar.totalTransfereciaDia.ConsultarTotalTransferidoHoje;
+import com.inter.java.challenge.workflows.buscar.totalTransferenciaDia.ConsultarTotalTransferidoHoje;
 import com.inter.java.challenge.workflows.cambio.CalcularValorTransferenciaCotacao;
 import com.inter.java.challenge.workflows.factory.ResultadoFactory;
-import com.inter.java.challenge.workflows.factory.TransfereciaFactory;
+import com.inter.java.challenge.workflows.factory.TransferenciaFactory;
 import com.inter.java.challenge.workflows.transacao.CreditarTransacao;
 import com.inter.java.challenge.workflows.transacao.DebitarTransacao;
-import com.inter.java.challenge.workflows.validator.validarTranferencia.ValidarTransferencia;
+import com.inter.java.challenge.workflows.validator.validarTransferencia.ValidarTransferencia;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -73,7 +73,7 @@ class TransferenciaBusinessTest {
     @Mock
     private TransferenciaRepository transferenciaRepository;
     @Mock
-    private TransfereciaFactory transferenciaFactory;
+    private TransferenciaFactory transferenciaFactory;
     @Mock
     private ResultadoFactory resultadoFactory;
     @Mock

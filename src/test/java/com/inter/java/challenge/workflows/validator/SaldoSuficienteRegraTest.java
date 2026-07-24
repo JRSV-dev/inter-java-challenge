@@ -5,7 +5,7 @@ import com.inter.java.challenge.data.model.CarteiraTransferencia;
 import com.inter.java.challenge.data.records.ContextoTransferencia;
 import com.inter.java.challenge.data.records.TransferirDinheiro;
 import com.inter.java.challenge.data.records.ValoresTransferencia;
-import com.inter.java.challenge.workflows.validator.validarTranferencia.validacoes.SaldoSuficienteRegra;
+import com.inter.java.challenge.workflows.validator.validarTransferencia.validacoes.SaldoSuficienteRegra;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;

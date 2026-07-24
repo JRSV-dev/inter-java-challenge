@@ -15,7 +15,7 @@ public record TransferirDinheiro(
         return moedaOrigem == MoedaOrigem.REAL;
     }
 
-    public boolean transferenciaDolaParaReal() {
+    public boolean transferenciaDolarParaReal() {
         return moedaOrigem == MoedaOrigem.DOLAR;
     }
 }

@@ -34,7 +34,7 @@ public final class GlobalExceptionHandler {
                 LocalDateTime.now(),
                 exception.getStatus(),
                 exception.getCodigo(),
-                exception.getMensagensExceptions().getMensagem(),
+                exception.getMessage(),
                 request.getRequestURI()
         );
 
