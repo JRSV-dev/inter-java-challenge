@@ -6,5 +6,5 @@ import java.time.LocalDate;
 
 public interface BuscarCotacaoDolar {
 
-    public CotacaoDolar buscar(LocalDate dataReferencia);
+    CotacaoDolar buscar(LocalDate dataReferencia);
 }

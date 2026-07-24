@@ -236,7 +236,6 @@ components:
         - usuarioId
         - saldoReais
         - saldoDolares
-        - dataAtualizacao
       properties:
         id:
           type: integer
@@ -259,11 +258,6 @@ components:
           minimum: 0
           multipleOf: 0.01
           example: 300.00
-
-        dataAtualizacao:
-          type: string
-          format: date-time
-          example: "2026-07-23T20:30:00"
     TransferenciaRequest:
       type: object
       required:

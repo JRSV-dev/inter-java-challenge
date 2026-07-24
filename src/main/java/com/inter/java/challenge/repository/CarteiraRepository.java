@@ -14,16 +14,10 @@ import java.util.Optional;
 public interface CarteiraRepository {
 
     void salvarNovaCarteira(Carteira carteira);
-
     Optional<Carteira> buscarPorUsuarioId(Long usuarioId);
-
     List<CarteiraTransferencia> bloquearCarteiras(@Param("usuarioOrigemId") Long usuarioOrigemId, @Param("usuarioDestinoId") Long usuarioDestinoId);
-
     int debitarSaldoReal(@Param("usuarioId") Long usuarioId, @Param("valor") BigDecimal valor);
-
     int debitarSaldoDolar(@Param("usuarioId") Long usuarioId, @Param("valor") BigDecimal valor);
-
     int creditarSaldoReal(@Param("usuarioId") Long usuarioId, @Param("valorReal") BigDecimal valorReal);
-
     int creditarSaldoDolar(@Param("usuarioId") Long usuarioId, @Param("valorDolar") BigDecimal valorDolar);
 }

@@ -30,9 +30,7 @@ public class BancoCentralBuscarCotacaoClient implements BuscarCotacaoDolar {
 
     @Override
     public CotacaoDolar buscar(LocalDate dataReferencia) {
-        LocalDate dataInicial = dataReferencia.minusDays(
-                properties.diasRetroativos()
-        );
+        LocalDate dataInicial = dataReferencia.minusDays(properties.diasRetroativos());
 
         BancoCentralCotacaoResponse response =
                 bancoCentralFeignClient.buscarUltimaCotacao(
@@ -47,19 +45,14 @@ public class BancoCentralBuscarCotacaoClient implements BuscarCotacaoDolar {
         BancoCentralCotacaoResponse.ItemCotacaoBancoCentral item =
                 obterUltimaCotacao(response);
 
-        return new CotacaoDolar(
-                item.cotacaoCompra(),
-                extrairDataCotacao(item.dataHoraCotacao())
-        );
+        return new CotacaoDolar(item.cotacaoCompra(), extrairDataCotacao(item.dataHoraCotacao()));
     }
 
     private String formatarData(LocalDate data) {
-        return "'%s'".formatted(FORMATO_DATA_BCB.format(data));
+        return FORMATO_DATA_BCB.format(data);
     }
 
-    private BancoCentralCotacaoResponse.ItemCotacaoBancoCentral obterUltimaCotacao(
-            BancoCentralCotacaoResponse response
-    ) {
+    private BancoCentralCotacaoResponse.ItemCotacaoBancoCentral obterUltimaCotacao(BancoCentralCotacaoResponse response) {
         return Optional.ofNullable(response)
                 .map(BancoCentralCotacaoResponse::value)
                 .flatMap(itens -> itens.stream().findFirst())

@@ -11,11 +11,6 @@ import java.time.LocalDateTime;
 @Mapper
 public interface TransferenciaRepository {
 
-    BigDecimal buscarTotalTransferidoNoPeriodo(
-            @Param("usuarioId") Long usuarioId,
-            @Param("inicio") LocalDateTime inicio,
-            @Param("fim") LocalDateTime fim
-    );
-
+    BigDecimal buscarTotalTransferidoNoPeriodo(@Param("usuarioId") Long usuarioId, @Param("inicio") LocalDateTime inicio, @Param("fim") LocalDateTime fim);
     void salvarTransferencia(Transferencia transferencia);
 }

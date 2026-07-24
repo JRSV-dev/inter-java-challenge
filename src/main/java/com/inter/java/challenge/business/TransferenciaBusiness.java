@@ -57,28 +57,14 @@ public class TransferenciaBusiness {
     }
 
 
-    public TransferenciaResultado executar(
-            TransferirDinheiro model,
-            CotacaoDolar cotacao,
-            ValoresTransferencia valores
-    ) {
+    public TransferenciaResultado executar(TransferirDinheiro model, CotacaoDolar cotacao, ValoresTransferencia valores) {
         CarteirasTransferencia carteiras = buscarCarteira.bloquear(model);
         BigDecimal totalTransferidoHoje = consultarTotalTransferidoHoje.consultar(model.usuarioOrigemId());
-        ContextoTransferencia contexto = new ContextoTransferencia(
-                model,
-                valores,
-                carteiras.origem(),
-                totalTransferidoHoje
-        );
+        ContextoTransferencia contexto = new ContextoTransferencia(model, valores, carteiras.origem(), totalTransferidoHoje);
         validarTransferencia.validar(contexto);
         debitarTransacao.executar(model);
         creditarTransacao.executar(model, valores);
-        Transferencia transferencia = criarTransferenciaFactory.criar(
-                model,
-                cotacao,
-                valores,
-                LocalDateTime.now(clock)
-        );
+        Transferencia transferencia = criarTransferenciaFactory.criar(model, cotacao, valores, LocalDateTime.now(clock));
         transferenciaRepository.salvarTransferencia(transferencia);
         return criarResultadoFactory.criar(transferencia);
     }
