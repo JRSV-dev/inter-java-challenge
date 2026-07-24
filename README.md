@@ -62,7 +62,8 @@ Recursos complementares:
 
 ```text
 src/main/resources
-├── dbo/schema.sql          criação e carga inicial do banco
+├── dbo/schema.sql          criação das tabelas, constraints e índices
+├── dbo/data.sql            dados iniciais do ambiente local
 ├── mappers/                comandos SQL do MyBatis
 ├── openapi/openapi.yaml    contrato HTTP da aplicação
 └── application.properties configurações locais
@@ -317,13 +318,16 @@ E-mail e identificador são únicos.
 ### `CARTEIRAS`
 
 Possui uma relação de uma carteira por usuário e mantém os saldos separados.
-Constraints impedem saldos negativos.
+O saldo em real usa duas casas decimais e o saldo em dólar utiliza quatro.
+Constraints impedem saldos negativos. A coluna `data_atualizacao` registra a
+última alteração de saldo.
 
 ### `TRANSFERENCIAS`
 
 Registra:
 
 - usuários de origem e destino;
+- moeda de origem (`REAL` ou `DOLAR`);
 - valor em real;
 - valor em dólar;
 - cotação utilizada;
@@ -331,8 +335,23 @@ Registra:
 - data da operação;
 - status.
 
-Uma constraint impede transferências com o mesmo usuário como origem e
-destino.
+`VALOR_REAL` utiliza duas casas decimais. `VALOR_DOLAR` e `COTACAO_COMPRA`
+utilizam quatro casas para que o histórico não perca a precisão usada na
+conversão.
+
+As constraints da tabela garantem:
+
+- valores em real e dólar positivos;
+- usuários de origem e destino diferentes;
+- moeda de origem igual a `REAL` ou `DOLAR`;
+- status válido igual a `CONCLUIDA`.
+
+O índice composto por usuário de origem e data da transferência atende à
+consulta usada no cálculo do limite diário.
+
+O arquivo `dbo/schema.sql` contém somente a estrutura do banco. Os usuários e
+as carteiras disponíveis para execução local ficam separados em
+`dbo/data.sql`.
 
 ## Tratamento de erros
 
@@ -391,6 +410,7 @@ spring.datasource.url=jdbc:h2:mem:interdb
 spring.datasource.username=sa
 spring.datasource.password=
 spring.sql.init.schema-locations=classpath:dbo/schema.sql
+spring.sql.init.data-locations=classpath:dbo/data.sql
 
 mybatis.mapper-locations=classpath:mappers/*.xml
 
@@ -404,6 +424,25 @@ Pré-requisitos:
 
 - JDK 21;
 - Maven ou Maven Wrapper.
+
+### Compilar
+
+Linux/macOS:
+
+```bash
+./mvnw clean package
+```
+
+Windows:
+
+```powershell
+.\mvnw.cmd clean package
+```
+
+O comando compila a aplicação, gera as classes do contrato OpenAPI e executa
+os testes. O artefato final é criado no diretório `target`.
+
+### Executar
 
 Linux/macOS:
 
@@ -474,6 +513,12 @@ Executar todos:
 ./mvnw test
 ```
 
+No Windows:
+
+```powershell
+.\mvnw.cmd test
+```
+
 ### Testes unitários
 
 Cobrem:
@@ -500,6 +545,9 @@ Utilizam Spring Boot, MockMvc e uma instância H2 isolada para validar:
 - transferência de real para dólar;
 - transferência de dólar para real;
 - persistência do histórico;
+- precisão dos valores em dólar e da cotação;
+- persistência da moeda de origem;
+- constraints de moeda e status;
 - manutenção dos saldos quando a operação é rejeitada.
 
 A integração com o Banco Central é substituída por um mock nos testes de

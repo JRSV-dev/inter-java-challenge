@@ -32,15 +32,8 @@ public class BancoCentralBuscarCotacaoClient implements BuscarCotacaoDolar {
     public CotacaoDolar buscar(LocalDate dataReferencia) {
         LocalDate dataInicial = dataReferencia.minusDays(properties.diasRetroativos());
 
-        BancoCentralCotacaoResponse response =
-                bancoCentralFeignClient.buscarUltimaCotacao(
-                        formatarData(dataInicial),
-                        formatarData(dataReferencia),
-                        CAMPOS_RETORNO,
-                        ORDENACAO,
-                        LIMITE,
-                        FORMATO_RETORNO
-                );
+        BancoCentralCotacaoResponse response =  bancoCentralFeignClient.buscarUltimaCotacao(formatarData(dataInicial),
+                formatarData(dataReferencia), CAMPOS_RETORNO, ORDENACAO, LIMITE, FORMATO_RETORNO);
 
         BancoCentralCotacaoResponse.ItemCotacaoBancoCentral item =
                 obterUltimaCotacao(response);

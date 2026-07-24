@@ -28,6 +28,7 @@
         INSERT INTO TRANSFERENCIAS (
         USUARIO_ORIGEM_ID,
         USUARIO_DESTINO_ID,
+        MOEDA_ORIGEM,
         VALOR_REAL,
         VALOR_DOLAR,
         COTACAO_COMPRA,
@@ -38,6 +39,7 @@
         VALUES (
         #{usuarioOrigemId},
         #{usuarioDestinoId},
+        #{moedaOrigem},
         #{valorReal},
         #{valorDolar},
         #{cotacaoCompra},

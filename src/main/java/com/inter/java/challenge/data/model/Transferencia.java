@@ -2,6 +2,7 @@ package com.inter.java.challenge.data.model;
 
 
 import com.inter.java.challenge.data.enums.StatusTransferencia;
+import com.inter.java.challenge.data.enums.MoedaOrigem;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -18,6 +19,7 @@ public class Transferencia {
 
     private Long usuarioOrigemId;
     private Long usuarioDestinoId;
+    private MoedaOrigem moedaOrigem;
 
     private BigDecimal valorReal;
     private BigDecimal valorDolar;

@@ -26,6 +26,7 @@ public class TransfereciaFactory {
         Transferencia transferencia = new Transferencia();
         transferencia.setUsuarioOrigemId(comando.usuarioOrigemId());
         transferencia.setUsuarioDestinoId(comando.usuarioDestinoId());
+        transferencia.setMoedaOrigem(comando.moedaOrigem());
         transferencia.setValorReal(valores.valorReal());
         transferencia.setValorDolar(valores.valorDolar());
         transferencia.setCotacaoCompra(cotacao.cotacaoCompra());

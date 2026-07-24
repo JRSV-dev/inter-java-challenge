@@ -9,6 +9,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,6 +18,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -30,7 +32,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Transactional
 class TransferenciaIntegrationTest {
 
-    private static final BigDecimal COTACAO = new BigDecimal("5.0000");
+    private static final BigDecimal COTACAO = new BigDecimal("5.4321");
 
     @Autowired
     private MockMvc mockMvc;
@@ -74,13 +76,13 @@ class TransferenciaIntegrationTest {
                 .andExpect(jsonPath("$.usuarioOrigemId").value(1))
                 .andExpect(jsonPath("$.usuarioDestinoId").value(2))
                 .andExpect(jsonPath("$.valorReal").value(100.00))
-                .andExpect(jsonPath("$.valorDolar").value(20.00))
+                .andExpect(jsonPath("$.valorDolar").value(18.4091))
                 .andExpect(jsonPath("$.status").value("CONCLUIDA"));
 
         // Assert: efeitos persistidos
         assertSaldo(1L, "900.00", "50.0000");
-        assertSaldo(2L, "1000.00", "70.0000");
-        assertTransferenciaPersistida("100.00", "20.00");
+        assertSaldo(2L, "1000.00", "68.4091");
+        assertTransferenciaPersistida("REAL", "100.00", "18.4091", "5.4321");
     }
 
     @Test
@@ -93,18 +95,18 @@ class TransferenciaIntegrationTest {
                                   "usuarioOrigemId": 1,
                                   "usuarioDestinoId": 2,
                                   "moedaOrigem": "DOLAR",
-                                  "valor": 20.0000
+                                  "valor": 20.1234
                                 }
                                 """))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.valorReal").value(100.00))
-                .andExpect(jsonPath("$.valorDolar").value(20.00))
+                .andExpect(jsonPath("$.valorReal").value(109.31))
+                .andExpect(jsonPath("$.valorDolar").value(20.1234))
                 .andExpect(jsonPath("$.status").value("CONCLUIDA"));
 
         // Assert: efeitos persistidos
-        assertSaldo(1L, "1000.00", "30.0000");
-        assertSaldo(2L, "1100.00", "50.0000");
-        assertTransferenciaPersistida("100.00", "20.00");
+        assertSaldo(1L, "1000.00", "29.8766");
+        assertSaldo(2L, "1109.31", "50.0000");
+        assertTransferenciaPersistida("DOLAR", "109.31", "20.1234", "5.4321");
     }
 
     @Test
@@ -135,6 +137,18 @@ class TransferenciaIntegrationTest {
         assertThat(quantidadeTransferencias()).isZero();
     }
 
+    @Test
+    void deveRejeitarMoedaDeOrigemInvalidaNoBanco() {
+        assertThatThrownBy(() -> inserirTransferencia("EURO", "CONCLUIDA"))
+                .isInstanceOf(DataIntegrityViolationException.class);
+    }
+
+    @Test
+    void deveRejeitarStatusInvalidoNoBanco() {
+        assertThatThrownBy(() -> inserirTransferencia("REAL", "PENDENTE"))
+                .isInstanceOf(DataIntegrityViolationException.class);
+    }
+
     private void assertSaldo(
             long usuarioId,
             String saldoRealEsperado,
@@ -156,10 +170,16 @@ class TransferenciaIntegrationTest {
     }
 
     private void assertTransferenciaPersistida(
+            String moedaOrigemEsperada,
             String valorRealEsperado,
-            String valorDolarEsperado
+            String valorDolarEsperado,
+            String cotacaoEsperada
     ) {
         assertThat(quantidadeTransferencias()).isOne();
+        String moedaOrigem = jdbcTemplate.queryForObject(
+                "SELECT MOEDA_ORIGEM FROM TRANSFERENCIAS",
+                String.class
+        );
         BigDecimal valorReal = jdbcTemplate.queryForObject(
                 "SELECT VALOR_REAL FROM TRANSFERENCIAS",
                 BigDecimal.class
@@ -168,8 +188,31 @@ class TransferenciaIntegrationTest {
                 "SELECT VALOR_DOLAR FROM TRANSFERENCIAS",
                 BigDecimal.class
         );
+        BigDecimal cotacao = jdbcTemplate.queryForObject(
+                "SELECT COTACAO_COMPRA FROM TRANSFERENCIAS",
+                BigDecimal.class
+        );
+        assertThat(moedaOrigem).isEqualTo(moedaOrigemEsperada);
         assertThat(valorReal).isEqualByComparingTo(valorRealEsperado);
         assertThat(valorDolar).isEqualByComparingTo(valorDolarEsperado);
+        assertThat(cotacao).isEqualByComparingTo(cotacaoEsperada);
+    }
+
+    private void inserirTransferencia(String moedaOrigem, String status) {
+        jdbcTemplate.update("""
+                INSERT INTO TRANSFERENCIAS (
+                    USUARIO_ORIGEM_ID,
+                    USUARIO_DESTINO_ID,
+                    MOEDA_ORIGEM,
+                    VALOR_REAL,
+                    VALOR_DOLAR,
+                    COTACAO_COMPRA,
+                    DATA_COTACAO,
+                    DATA_TRANSFERENCIA,
+                    STATUS
+                )
+                VALUES (1, 2, ?, 10.00, 2.0000, 5.0000, CURRENT_DATE, CURRENT_TIMESTAMP, ?)
+                """, moedaOrigem, status);
     }
 
     private int quantidadeTransferencias() {
