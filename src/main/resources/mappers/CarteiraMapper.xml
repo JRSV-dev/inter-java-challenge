@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.inter.java.challenge.repository.CarteiraRepository">
+
+    <resultMap id="carteiraResultMap"
+               type="com.inter.java.challenge.data.model.Carteira">
+
+        <id property="id"
+            column="id"/>
+
+        <result property="usuarioId"
+                column="usuario_id"/>
+
+        <result property="saldoReais"
+                column="saldo_reais"/>
+
+        <result property="saldoDolares"
+                column="saldo_dolares"/>
+
+        <result property="dataAtualizacao"
+                column="data_atualizacao"/>
+
+    </resultMap>
+
+    <select id="buscarPorUsuarioId"
+            parameterType="java.lang.Long"
+            resultMap="carteiraResultMap">
+
+        SELECT
+        ID,
+        USUARIO_ID,
+        SALDO_REAIS,
+        SALDO_DOLARES,
+        DATA_ATUALIZACAO
+        FROM CARTEIRAS
+        WHERE USUARIO_ID = #{usuarioId}
+
+    </select>
+
+
+    <insert id="salvarNovaCarteira"
+            parameterType="com.inter.java.challenge.data.model.Carteira"
+            useGeneratedKeys="true"
+            keyProperty="id"
+            keyColumn="ID">
+
+        INSERT INTO CARTEIRAS (
+        USUARIO_ID,
+        SALDO_REAIS,
+        SALDO_DOLARES
+        )
+        VALUES (
+        #{usuarioId},
+        #{saldoReais},
+        #{saldoDolares}
+        )
+
+    </insert>
+
+
+</mapper>

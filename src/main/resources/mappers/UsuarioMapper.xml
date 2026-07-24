@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.inter.java.challenge.repository.UsuarioRepository">
+    <resultMap id="paginaUsuarioResultadoMap" type="com.inter.java.challenge.data.model.Pagina">
+
+        <result property="pagina" column="pagina"/>
+        <result property="quantidadePagina" column="quantidade_pagina"/>
+        <result property="totalElementos" column="total_elementos"/>
+        <result property="totalPaginas" column="total_paginas"/>
+
+        <collection property="conteudo" ofType="com.inter.java.challenge.data.model.Usuario">
+            <id property="id" column="id"/>
+            <result property="nomeCompleto" column="nome_completo"/>
+            <result property="email" column="email"/>
+            <result property="identificador" column="identificador"/>
+            <result property="senha" column="senha"/>
+        </collection>
+
+    </resultMap>
+    <select id="buscarTodosUsuarios" resultMap="paginaUsuarioResultadoMap">
+
+        WITH usuarios_paginados AS (
+        SELECT
+        u.id,
+        u.nome_completo,
+        u.email,
+        u.identificador,
+        u.senha,
+        COUNT(*) OVER() AS total_elementos
+        FROM usuarios u
+        ORDER BY u.id
+        LIMIT #{quantidade_pagina}
+        OFFSET (#{pagina} * #{quantidade_pagina})
+        )
+
+        SELECT
+        *,
+        CEIL(total_elementos * 1.0 / #{quantidade_pagina}) AS total_paginas,
+        #{pagina} AS pagina,
+        #{quantidade_pagina} AS quantidade_pagina
+        FROM usuarios_paginados
+    </select>
+
+    <select
+            id="buscarUsuarioPorId"
+           resultType="com.inter.java.challenge.data.model.Usuario">
+        SELECT
+        u.id,
+        u.nome_completo as nomeCompleto,
+        u.email,
+        u.identificador,
+        u.senha
+        FROM usuarios u
+        WHERE u.id = #{usuarioId}
+        AND u.data_exclusao is null
+
+    </select>
+
+    <select
+            id="buscarUsuarioPorIdentificador"
+            resultType="com.inter.java.challenge.data.model.Usuario">
+        SELECT
+        u.id,
+        u.nome_completo as nomeCompleto,
+        u.email,
+        u.identificador,
+        u.senha
+        FROM usuarios u
+        WHERE u.identificador = #{identificador}
+        AND u.data_exclusao is null
+
+    </select>
+
+    <select
+            id="buscarUsuarioPorEmail"
+            resultType="com.inter.java.challenge.data.model.Usuario">
+        SELECT
+        u.id,
+        u.nome_completo as nomeCompleto,
+        u.email,
+        u.identificador,
+        u.senha
+        FROM usuarios u
+        WHERE u.email= #{email}
+        AND u.data_exclusao is null
+
+    </select>
+
+
+    <insert id="salvarNovoUsuario"
+            parameterType="com.inter.java.challenge.data.model.Usuario"
+            useGeneratedKeys="true"
+            keyProperty="id"
+            keyColumn="ID">
+
+        INSERT INTO USUARIOS (
+        NOME_COMPLETO,
+        EMAIL,
+        IDENTIFICADOR,
+        TIPO_USUARIO,
+        SENHA
+        )
+        VALUES (
+        #{nomeCompleto},
+        #{email},
+        #{identificador},
+        #{tipoUsuario},
+        #{senha}
+        )
+
+    </insert>
+</mapper>

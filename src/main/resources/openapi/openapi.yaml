@@ -8,3 +8,228 @@ info:
 servers:
   - url: http://localhost:8080
 
+tags:
+  - name: Usuarios
+
+paths:
+
+  /usuarios:
+
+    get:
+      tags:
+        - Usuarios
+      summary: Lista todos os usuários
+      operationId: buscarUsuarios
+      parameters:
+        - name: pagina
+          in: query
+          description: Número da página (inicia em 0)
+          required: false
+          schema:
+            type: integer
+            default: 0
+            minimum: 0
+
+        - name: quantidadePorPagina
+          in: query
+          description: Quantidade de registros por página
+          required: false
+          schema:
+            type: integer
+            default: 10
+            minimum: 1
+            maximum: 100
+      responses:
+        '200':
+          description: Lista de usuários
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginaUsuario'
+
+    post:
+      tags:
+        - Usuarios
+      summary: Cria um novo usuário.
+      operationId: salvarUsuario
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UsuarioRequest'
+
+      responses:
+        '201':
+          description: Usuário criado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UsuarioResponse'
+
+  /usuarios/{id}:
+
+    get:
+      tags:
+        - Usuarios
+      summary: Busca usuário por Id
+      operationId: buscarUsuarioPorId
+
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+
+      responses:
+        '200':
+          description: Usuário encontrado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UsuarioResponse'
+
+        '404':
+          description: Usuário não encontrado.
+
+
+  /usuarios/{id}/carteira:
+    get:
+      tags:
+        - Usuarios
+      summary: Busca carteira do usuario
+      operationId: buscarCarteiraPorUsuarioId
+
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+
+      responses:
+        '200':
+          description: Usuário encontrado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CarteiraResponse'
+
+        '404':
+          description: Usuário não encontrado.
+
+components:
+
+  schemas:
+
+    UsuarioResponse:
+      type: object
+
+      properties:
+        id:
+          type: integer
+          format: int64
+
+        nomeCompleto:
+          type: string
+          description: Nome completo do usuário.
+
+        email:
+          type: string
+          description: Email de acesso do usuário.
+          format: email
+
+        identificador:
+          type: string
+          description: CPF ou CNPJ do usuáiro.
+          pattern: '^(\d{11}|\d{14})$'
+
+        tipoUsuario:
+          type: string
+          description: Tipo do usuario Cpf ou Cnpj.
+
+    UsuarioRequest:
+      type: object
+
+      required:
+        - nomeCompleto
+        - email
+        - identificador
+        - senha
+
+      properties:
+        nomeCompleto:
+          type: string
+          description: Nome completo do usuário.
+
+        email:
+          type: string
+          description: Email de acesso do usuário.
+          format: email
+
+        identificador:
+          type: string
+          description: CPF ou CNPJ do usuáiro.
+          pattern: '^(\d{11}|\d{14})$'
+
+        senha:
+          type: string
+          description: Senha de acesso do usuário.
+    PaginaUsuario:
+      type: object
+      properties:
+        conteudo:
+          type: array
+          items:
+            $ref: '#/components/schemas/UsuarioResponse'
+        pagina:
+          type: integer
+          example: 0
+        quantidadePagina:
+          type: integer
+          example: 10
+        totalElementos:
+          type: integer
+          format: int64
+          example: 53
+        totalPaginas:
+          type: integer
+          example: 6
+    CarteiraResponse:
+      type: object
+      required:
+        - id
+        - usuarioId
+        - saldoReais
+        - saldoDolares
+        - dataAtualizacao
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+
+        usuarioId:
+          type: integer
+          format: int64
+          example: 10
+
+        saldoReais:
+          type: number
+          minimum: 0
+          multipleOf: 0.01
+          example: 1500.00
+
+        saldoDolares:
+          type: number
+          minimum: 0
+          multipleOf: 0.01
+          example: 300.00
+
+        dataAtualizacao:
+          type: string
+          format: date-time
+          example: "2026-07-23T20:30:00"
