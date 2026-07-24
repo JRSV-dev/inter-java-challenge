@@ -129,8 +129,9 @@ class TransferenciaIntegrationTest {
                                   "moedaOrigem": "REAL",
                                   "valor": 100.00
                                 }
-                                """))
-                .andExpect(status().isBadRequest())
+                """))
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.codigo").value("SALDO_INSUFICIENTE"))
                 .andExpect(jsonPath("$.mensagem")
                         .value("Saldo insuficiente para realizar a transferência."));
 
@@ -149,6 +150,30 @@ class TransferenciaIntegrationTest {
     void deveRejeitarStatusInvalidoNoBanco() {
         assertThatThrownBy(() -> inserirTransferencia("REAL", "PENDENTE"))
                 .isInstanceOf(DataIntegrityViolationException.class);
+    }
+
+    @Test
+    void devePadronizarErroQuandoJsonEstiverMalformado() throws Exception {
+        mockMvc.perform(post("/transferencias")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.codigo").value("REQUISICAO_INVALIDA"))
+                .andExpect(jsonPath("$.mensagem")
+                        .value("O corpo da requisição está ausente ou malformado."))
+                .andExpect(jsonPath("$.path").value("/transferencias"));
+    }
+
+    @Test
+    void devePadronizarErroQuandoCamposObrigatoriosNaoForemInformados()
+            throws Exception {
+        mockMvc.perform(post("/transferencias")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.codigo").value("DADOS_INVALIDOS"))
+                .andExpect(jsonPath("$.mensagem").isNotEmpty())
+                .andExpect(jsonPath("$.path").value("/transferencias"));
     }
 
     private void assertSaldo(

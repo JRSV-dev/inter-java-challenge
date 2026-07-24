@@ -6,9 +6,11 @@ import com.inter.java.challenge.data.records.BancoCentralProperties;
 import com.inter.java.challenge.data.records.CotacaoDolar;
 import com.inter.java.challenge.configuration.exception.exceptions.CotacaoIndisponivelException;
 import com.inter.java.challenge.workflows.buscar.buscarCotacao.BuscarCotacaoDolar;
+import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
@@ -32,13 +34,28 @@ public class BancoCentralBuscarCotacaoClient implements BuscarCotacaoDolar {
     public CotacaoDolar buscar(LocalDate dataReferencia) {
         LocalDate dataInicial = dataReferencia.minusDays(properties.diasRetroativos());
 
-        BancoCentralCotacaoResponse response =  bancoCentralFeignClient.buscarUltimaCotacao(formatarData(dataInicial),
-                formatarData(dataReferencia), CAMPOS_RETORNO, ORDENACAO, LIMITE, FORMATO_RETORNO);
+        try {
+            BancoCentralCotacaoResponse response =
+                    bancoCentralFeignClient.buscarUltimaCotacao(
+                            formatarData(dataInicial),
+                            formatarData(dataReferencia),
+                            CAMPOS_RETORNO,
+                            ORDENACAO,
+                            LIMITE,
+                            FORMATO_RETORNO
+                    );
+            BancoCentralCotacaoResponse.ItemCotacaoBancoCentral item =
+                    obterUltimaCotacao(response);
 
-        BancoCentralCotacaoResponse.ItemCotacaoBancoCentral item =
-                obterUltimaCotacao(response);
-
-        return new CotacaoDolar(item.cotacaoCompra(), extrairDataCotacao(item.dataHoraCotacao()));
+            return new CotacaoDolar(
+                    obterCotacaoCompra(item),
+                    extrairDataCotacao(item)
+            );
+        } catch (CotacaoIndisponivelException exception) {
+            throw exception;
+        } catch (FeignException | IllegalArgumentException exception) {
+            throw new CotacaoIndisponivelException(exception);
+        }
     }
 
     private String formatarData(LocalDate data) {
@@ -52,7 +69,20 @@ public class BancoCentralBuscarCotacaoClient implements BuscarCotacaoDolar {
                 .orElseThrow(CotacaoIndisponivelException::new);
     }
 
-    private LocalDate extrairDataCotacao(String dataHoraCotacao) {
-        return LocalDate.parse(dataHoraCotacao.substring(0, 10));
+    private BigDecimal obterCotacaoCompra(
+            BancoCentralCotacaoResponse.ItemCotacaoBancoCentral item
+    ) {
+        return Optional.ofNullable(item.cotacaoCompra())
+                .orElseThrow(CotacaoIndisponivelException::new);
+    }
+
+    private LocalDate extrairDataCotacao(
+            BancoCentralCotacaoResponse.ItemCotacaoBancoCentral item
+    ) {
+        return Optional.ofNullable(item.dataHoraCotacao())
+                .filter(dataHora -> dataHora.length() >= 10)
+                .map(dataHora -> dataHora.substring(0, 10))
+                .map(LocalDate::parse)
+                .orElseThrow(CotacaoIndisponivelException::new);
     }
 }

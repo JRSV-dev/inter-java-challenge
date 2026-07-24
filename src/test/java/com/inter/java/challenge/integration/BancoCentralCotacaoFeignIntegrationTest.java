@@ -2,6 +2,7 @@ package com.inter.java.challenge.integration;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.inter.java.challenge.client.BancoCentralBuscarCotacaoClient;
+import com.inter.java.challenge.configuration.exception.exceptions.CotacaoIndisponivelException;
 import com.inter.java.challenge.data.records.CotacaoDolar;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,8 +18,10 @@ import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.okJson;
+import static com.github.tomakehurst.wiremock.client.WireMock.serverError;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @SpringBootTest(properties = {
         "spring.datasource.url=jdbc:h2:mem:cotacao-feign-it;DB_CLOSE_DELAY=-1"
@@ -78,5 +81,17 @@ class BancoCentralCotacaoFeignIntegrationTest {
                 .withQueryParam("$orderby", equalTo("dataHoraCotacao desc"))
                 .withQueryParam("$top", equalTo("1"))
                 .withQueryParam("$format", equalTo("json")));
+    }
+
+    @Test
+    void deveTraduzirErroDoBancoCentralParaErroDeServico() {
+        wireMock.stubFor(get(urlPathEqualTo(CAMINHO_COTACAO))
+                .willReturn(serverError()));
+
+        assertThatThrownBy(() ->
+                client.buscar(LocalDate.of(2026, 7, 18))
+        ).isInstanceOf(CotacaoIndisponivelException.class)
+                .hasMessage("Nenhuma cotação disponível foi encontrada.")
+                .hasCauseInstanceOf(feign.FeignException.class);
     }
 }

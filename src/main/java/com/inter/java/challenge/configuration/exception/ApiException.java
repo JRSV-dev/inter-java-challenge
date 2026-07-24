@@ -3,6 +3,7 @@ package com.inter.java.challenge.configuration.exception;
 
 import com.inter.java.challenge.utils.MensagensExceptions;
 import lombok.Getter;
+import org.springframework.http.HttpStatus;
 
 @Getter
 public abstract class ApiException extends RuntimeException {
@@ -12,13 +13,22 @@ public abstract class ApiException extends RuntimeException {
     private final MensagensExceptions mensagensExceptions;
 
     protected ApiException(
-            String codigo,
-            Integer status,
+            CodigoErro codigo,
+            HttpStatus status,
             MensagensExceptions mensagensExceptions
     ) {
-        super(mensagensExceptions.getMensagem());
-        this.codigo = codigo;
-        this.status = status;
+        this(codigo, status, mensagensExceptions, null);
+    }
+
+    protected ApiException(
+            CodigoErro codigo,
+            HttpStatus status,
+            MensagensExceptions mensagensExceptions,
+            Throwable cause
+    ) {
+        super(mensagensExceptions.getMensagem(), cause);
+        this.codigo = codigo.name();
+        this.status = status.value();
         this.mensagensExceptions = mensagensExceptions;
     }
 }

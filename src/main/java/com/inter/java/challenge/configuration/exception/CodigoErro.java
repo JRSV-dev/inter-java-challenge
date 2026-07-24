@@ -1,0 +1,12 @@
+package com.inter.java.challenge.configuration.exception;
+
+public enum CodigoErro {
+
+    USUARIO_NAO_ENCONTRADO,
+    USUARIO_EMAIL_JA_CADASTRADO,
+    USUARIO_IDENTIFICADOR_JA_CADASTRADO,
+    CARTEIRA_NAO_ENCONTRADA,
+    SALDO_INSUFICIENTE,
+    LIMITE_DIARIO_EXCEDIDO,
+    COTACAO_INDISPONIVEL
+}
