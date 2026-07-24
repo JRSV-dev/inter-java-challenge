@@ -4,6 +4,9 @@ import com.inter.java.challenge.data.enums.MoedaOrigem;
 
 import java.math.BigDecimal;
 
+import static com.inter.java.challenge.data.enums.MoedaOrigem.DOLAR;
+import static com.inter.java.challenge.data.enums.MoedaOrigem.REAL;
+
 public record TransferirDinheiro(
         Long usuarioOrigemId,
         Long usuarioDestinoId,
@@ -12,10 +15,10 @@ public record TransferirDinheiro(
 ) {
 
     public boolean transferenciaRealParaDolar() {
-        return moedaOrigem == MoedaOrigem.REAL;
+        return moedaOrigem.equals(REAL);
     }
 
     public boolean transferenciaDolarParaReal() {
-        return moedaOrigem == MoedaOrigem.DOLAR;
+        return moedaOrigem.equals(DOLAR);
     }
 }

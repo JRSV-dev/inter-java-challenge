@@ -187,7 +187,7 @@ components:
             $ref: '#/components/schemas/ConflictErrorResponse'
 
     RegraDeNegocioInvalida:
-      description: >
+      description:
         Regra de negócio da transferência não atendida. Tanto saldo
         insuficiente quanto limite diário excedido retornam HTTP 422.
       content:
@@ -246,6 +246,7 @@ components:
               enum:
                 - DADOS_INVALIDOS
                 - REQUISICAO_INVALIDA
+                - IDENTIFICADOR_INVALIDO
               example: DADOS_INVALIDOS
             mensagem:
               type: string
@@ -373,13 +374,18 @@ components:
 
         email:
           type: string
-          description: Email de acesso do usuário.
+          description:
+            E-mail de acesso do usuário. O valor é normalizado removendo espaços
+            externos e convertendo os caracteres para minúsculas.
           format: email
 
         identificador:
           type: string
-          description: CPF ou CNPJ do usuáiro.
+          description:
+            CPF ou CNPJ sem pontuação. Além do formato, os dígitos verificadores
+            são validados.
           pattern: '^(\d{11}|\d{14})$'
+          example: '52998224725'
 
         tipoUsuario:
           type: string
@@ -401,13 +407,19 @@ components:
 
         email:
           type: string
-          description: Email de acesso do usuário.
+          description:
+            E-mail de acesso do usuário. O valor é normalizado removendo espaços
+            externos e convertendo os caracteres para minúsculas.
           format: email
+          x-extra-annotation: '@com.fasterxml.jackson.databind.annotation.JsonDeserialize(using = com.inter.java.challenge.configuration.jackson.EmailNormalizadoDeserializer.class)'
 
         identificador:
           type: string
-          description: CPF ou CNPJ do usuáiro.
+          description:
+            CPF ou CNPJ sem pontuação. Além do formato, os dígitos verificadores
+            são validados.
           pattern: '^(\d{11}|\d{14})$'
+          example: '52998224725'
 
         senha:
           type: string

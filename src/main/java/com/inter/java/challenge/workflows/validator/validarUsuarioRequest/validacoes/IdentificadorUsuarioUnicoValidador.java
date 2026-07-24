@@ -2,14 +2,13 @@ package com.inter.java.challenge.workflows.validator.validarUsuarioRequest.valid
 
 import com.inter.java.challenge.api.model.UsuarioRequest;
 import com.inter.java.challenge.configuration.exception.exceptions.UsuarioJaExisteIdentificador;
-import com.inter.java.challenge.configuration.exception.exceptions.UsuarioNaoEncontradoException;
 import com.inter.java.challenge.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 @Component
-@Order(2)
+@Order(3)
 @RequiredArgsConstructor
 public class IdentificadorUsuarioUnicoValidador
         implements Validador<UsuarioRequest> {

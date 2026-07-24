@@ -9,6 +9,8 @@ CREATE TABLE IF NOT EXISTS usuarios (
     data_exclusao TIMESTAMP NULL,
     CONSTRAINT ck_usuario_tipo
     CHECK (tipo_usuario IN ('PF', 'PJ')),
+    CONSTRAINT ck_usuario_email_normalizado
+    CHECK (email = LOWER(TRIM(email))),
     CONSTRAINT ck_usuario_identificador
     CHECK (
     (tipo_usuario = 'PF' AND LENGTH(identificador) = 11)

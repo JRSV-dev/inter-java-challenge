@@ -84,7 +84,7 @@
         u.identificador,
         u.senha
         FROM usuarios u
-        WHERE u.email= #{email}
+        WHERE LOWER(TRIM(u.email)) = #{email}
         AND u.data_exclusao is null
 
     </select>

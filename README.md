@@ -87,19 +87,21 @@ src/main/resources
 
 Ao cadastrar um usuário, a aplicação:
 
-1. valida se o e-mail já está cadastrado;
-2. valida se o CPF ou CNPJ já está cadastrado;
-3. identifica o tipo do usuário pelo tamanho do identificador;
-4. criptografa a senha;
-5. salva o usuário;
-6. cria uma carteira com os dois saldos zerados.
+1. normaliza o e-mail removendo espaços externos e convertendo-o para minúsculas;
+2. valida os dígitos verificadores do CPF ou CNPJ;
+3. valida se o e-mail já está cadastrado;
+4. valida se o CPF ou CNPJ já está cadastrado;
+5. identifica o tipo do usuário pelo identificador validado;
+6. criptografa a senha;
+7. salva o usuário;
+8. cria uma carteira com os dois saldos zerados.
 
 Regras do identificador:
 
 | Identificador | Tipo |
 |---|---|
-| 11 dígitos | Pessoa Física (`PF`) |
-| 14 dígitos | Pessoa Jurídica (`PJ`) |
+| CPF com 11 dígitos e dígitos verificadores válidos | Pessoa Física (`PF`) |
+| CNPJ com 14 dígitos e dígitos verificadores válidos | Pessoa Jurídica (`PJ`) |
 
 Exemplo:
 
@@ -112,7 +114,7 @@ Content-Type: application/json
 {
   "nomeCompleto": "Maria da Silva",
   "email": "maria@email.com",
-  "identificador": "12345678901",
+  "identificador": "52998224725",
   "senha": "Senha@123"
 }
 ```
@@ -365,23 +367,47 @@ As exceções de negócio estendem `ApiException` e são convertidas pelo
 ```json
 {
   "timestamp": "2026-07-24T10:30:00",
-  "status": 400,
-  "codigo": "400 BAD_REQUEST",
-  "mensagem": "Saldo insuficiente para fazer essa transferencia.",
+  "status": 422,
+  "codigo": "SALDO_INSUFICIENTE",
+  "mensagem": "Saldo insuficiente para realizar a transferência.",
   "path": "/transferencias"
 }
 ```
+
+O mesmo formato também é utilizado para erros de validação, JSON malformado,
+violações de integridade, recursos inexistentes, falhas de integração e erros
+inesperados. Mensagens internas do banco e stack traces não são devolvidos ao
+cliente.
 
 Principais cenários:
 
 | Status | Situação |
 |---:|---|
-| `400` | E-mail ou identificador já cadastrado |
-| `400` | Saldo insuficiente |
-| `400` | Limite diário excedido |
+| `400` | JSON malformado, campos inválidos ou CPF/CNPJ inválido |
 | `404` | Usuário não encontrado |
 | `404` | Carteira não encontrada |
-| `503` | Cotação indisponível |
+| `405` | Método HTTP não suportado |
+| `409` | E-mail, identificador ou constraint duplicada |
+| `415` | Tipo de conteúdo não suportado |
+| `422` | Saldo insuficiente |
+| `422` | Limite diário de transferência excedido |
+| `503` | Cotação indisponível, timeout ou erro do Banco Central |
+| `500` | Erro interno inesperado, sem exposição de detalhes |
+
+Cada exceção de negócio possui um código estável e específico. O status HTTP
+representa a categoria do erro, enquanto `codigo` permite ao cliente identificar
+o cenário exato:
+
+| Cenário | Status | Código | Mensagem |
+|---|---:|---|---|
+| Usuário não encontrado | `404` | `USUARIO_NAO_ENCONTRADO` | `Usuário não encontrado.` |
+| Carteira não encontrada | `404` | `CARTEIRA_NAO_ENCONTRADA` | `Nenhuma carteira foi encontrada para o usuário informado.` |
+| CPF/CNPJ inválido | `400` | `IDENTIFICADOR_INVALIDO` | `CPF ou CNPJ inválido.` |
+| E-mail já cadastrado | `409` | `USUARIO_EMAIL_JA_CADASTRADO` | `Usuário já cadastrado com este e-mail.` |
+| CPF/CNPJ já cadastrado | `409` | `USUARIO_IDENTIFICADOR_JA_CADASTRADO` | `Usuário já cadastrado com este identificador.` |
+| Saldo insuficiente | `422` | `SALDO_INSUFICIENTE` | `Saldo insuficiente para realizar a transferência.` |
+| Limite diário excedido | `422` | `LIMITE_DIARIO_EXCEDIDO` | `Limite diário de transferência excedido.` |
+| Cotação indisponível | `503` | `COTACAO_INDISPONIVEL` | `Nenhuma cotação disponível foi encontrada.` |
 
 ## Endpoints
 
@@ -421,6 +447,9 @@ mybatis.mapper-locations=classpath:mappers/*.xml
 
 integracoes.banco-central.base-url=https://olinda.bcb.gov.br/olinda/servico/PTAX/versao/v1/odata
 integracoes.banco-central.dias-retroativos=7
+
+spring.cloud.openfeign.client.config.banco-central-cotacao.connectTimeout=3000
+spring.cloud.openfeign.client.config.banco-central-cotacao.readTimeout=5000
 ```
 
 ## Executar o projeto
@@ -535,6 +564,8 @@ Cobrem:
 - validação de saldo;
 - validação de limite diário;
 - cadastro e consulta de usuários;
+- validação dos dígitos verificadores de CPF e CNPJ;
+- normalização e unicidade de e-mail sem diferença entre maiúsculas e minúsculas;
 - fallback da cotação de sábado e domingo;
 - resposta sem cotações disponíveis.
 
@@ -554,6 +585,8 @@ Utilizam Spring Boot, MockMvc, WireMock e instâncias H2 isoladas para validar:
 - persistência da moeda de origem;
 - constraints de moeda e status;
 - manutenção dos saldos quando a operação é rejeitada;
+- cadastro com e-mail normalizado e rejeição de CPF inválido;
+- detecção de e-mail duplicado após normalização;
 - contrato HTTP gerado pelo OpenFeign, incluindo caminho, datas e parâmetros
   OData;
 - desserialização da resposta simulada do Banco Central;

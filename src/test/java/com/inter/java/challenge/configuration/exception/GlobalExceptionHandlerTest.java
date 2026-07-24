@@ -2,6 +2,7 @@ package com.inter.java.challenge.configuration.exception;
 
 import com.inter.java.challenge.configuration.exception.exceptions.CarteiraNaoEncontrada;
 import com.inter.java.challenge.configuration.exception.exceptions.CotacaoIndisponivelException;
+import com.inter.java.challenge.configuration.exception.exceptions.IdentificadorInvalidoException;
 import com.inter.java.challenge.configuration.exception.exceptions.LimiteDiarioExcedidoException;
 import com.inter.java.challenge.configuration.exception.exceptions.SaldoInsuficienteException;
 import com.inter.java.challenge.configuration.exception.exceptions.UsuarioJaExisteEmail;
@@ -55,6 +56,12 @@ class GlobalExceptionHandlerTest {
 
     private static Stream<Arguments> excecoesDeNegocio() {
         return Stream.of(
+                arguments(
+                        new IdentificadorInvalidoException(),
+                        400,
+                        "IDENTIFICADOR_INVALIDO",
+                        "CPF ou CNPJ inválido."
+                ),
                 arguments(
                         new UsuarioNaoEncontradoException(),
                         404,

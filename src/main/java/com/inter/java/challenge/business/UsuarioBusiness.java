@@ -20,6 +20,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import static com.inter.java.challenge.utils.NormalizadorEmail.normalizar;
+
 
 @Service
 @RequiredArgsConstructor
@@ -49,6 +51,7 @@ public class UsuarioBusiness {
 
     @Transactional
     public UsuarioResponse salvarNovoUsuario(UsuarioRequest usuarioRequest) {
+        usuarioRequest.setEmail(normalizar(usuarioRequest.getEmail()));
         criacaoUsuarioValidador.validar(usuarioRequest);
         Usuario model = usuarioMapper.requestParaModel(usuarioRequest);
         model.setSenha(passwordEncoder.encode(usuarioRequest.getSenha()));

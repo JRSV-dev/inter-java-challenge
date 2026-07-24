@@ -19,6 +19,7 @@ import org.springframework.web.method.annotation.HandlerMethodValidationExceptio
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -215,9 +216,8 @@ public final class GlobalExceptionHandler {
     }
 
     private String mensagemPadrao(MessageSourceResolvable erro) {
-        return erro.getDefaultMessage() == null
-                ? "valor inválido"
-                : erro.getDefaultMessage();
+        return Optional.ofNullable(erro.getDefaultMessage())
+                .orElse("valor inválido");
     }
 
     private ResponseEntity<ApiErrorResponse> criarResposta(
