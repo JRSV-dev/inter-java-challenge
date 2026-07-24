@@ -10,6 +10,7 @@ public enum MensagensExceptions {
     USUARIO_NAO_ENCONTRADO("Usuário não encontrado."),
     USUARIO_COM_EMAIL_CADASTRADO("Usuario já cadastrado com esse email."),
     USUARIO_COM_IDENTIFICADOR_CADASTRADO("Usuario já cadastrado com esse identificador."),
+    CARTEIRA_NAO_CADASTRADA_USUARIO("Esse id de carteira não pertence a nenhum usuario."),
     ;
 
     private final String mensagem;
