@@ -18,14 +18,9 @@ public class LimiteDiarioRegra implements RegraTransferencia<ContextoTransferenc
 
         log.info("Validando limite diário");
 
-        BigDecimal limite = contexto
-                .carteiraOrigem()
-                .getTipoUsuario()
-                .limiteDiario();
+        BigDecimal limite = contexto.carteiraOrigem().getTipoUsuario().limiteDiario();
 
-        BigDecimal totalProjetado = contexto
-                .totalTransferidoHoje()
-                .add(contexto.valores().valorReal());
+        BigDecimal totalProjetado = contexto.totalTransferidoHoje().add(contexto.valores().valorReal());
 
         if (totalProjetado.compareTo(limite) > 0) {
             log.info("Sem limite disponível.");

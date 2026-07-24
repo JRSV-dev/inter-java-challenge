@@ -3,8 +3,8 @@ package com.inter.java.challenge.client;
 
 import com.inter.java.challenge.data.records.BancoCentralCotacaoResponse;
 import com.inter.java.challenge.data.records.BancoCentralProperties;
-import com.inter.java.challenge.data.records.CotacaoDolar;
 import com.inter.java.challenge.configuration.exception.exceptions.CotacaoIndisponivelException;
+import com.inter.java.challenge.data.records.CotacaoDolar;
 import com.inter.java.challenge.workflows.buscar.buscarCotacao.BuscarCotacaoDolar;
 import feign.FeignException;
 import lombok.RequiredArgsConstructor;
@@ -69,16 +69,12 @@ public class BancoCentralBuscarCotacaoClient implements BuscarCotacaoDolar {
                 .orElseThrow(CotacaoIndisponivelException::new);
     }
 
-    private BigDecimal obterCotacaoCompra(
-            BancoCentralCotacaoResponse.ItemCotacaoBancoCentral item
-    ) {
+    private BigDecimal obterCotacaoCompra(BancoCentralCotacaoResponse.ItemCotacaoBancoCentral item) {
         return Optional.ofNullable(item.cotacaoCompra())
                 .orElseThrow(CotacaoIndisponivelException::new);
     }
 
-    private LocalDate extrairDataCotacao(
-            BancoCentralCotacaoResponse.ItemCotacaoBancoCentral item
-    ) {
+    private LocalDate extrairDataCotacao(BancoCentralCotacaoResponse.ItemCotacaoBancoCentral item) {
         return Optional.ofNullable(item.dataHoraCotacao())
                 .filter(dataHora -> dataHora.length() >= 10)
                 .map(dataHora -> dataHora.substring(0, 10))

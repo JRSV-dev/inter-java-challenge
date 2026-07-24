@@ -14,12 +14,18 @@ import com.inter.java.challenge.mapper.TransferenciaMapper;
 import com.inter.java.challenge.repository.TransferenciaRepository;
 import com.inter.java.challenge.workflows.buscar.buscarCarteira.BuscarCarteira;
 import com.inter.java.challenge.workflows.buscar.buscarCotacao.BuscarCotacaoDolar;
+import com.inter.java.challenge.workflows.buscar.buscarUsuario.BuscarUsuario;
 import com.inter.java.challenge.workflows.buscar.totalTransferenciaDia.ConsultarTotalTransferidoHoje;
 import com.inter.java.challenge.workflows.cambio.CalcularValorTransferenciaCotacao;
 import com.inter.java.challenge.workflows.factory.ResultadoFactory;
 import com.inter.java.challenge.workflows.factory.TransferenciaFactory;
 import com.inter.java.challenge.workflows.transacao.CreditarTransacao;
 import com.inter.java.challenge.workflows.transacao.DebitarTransacao;
+import com.inter.java.challenge.workflows.transferencia.ConcluirTransferencia;
+import com.inter.java.challenge.workflows.transferencia.ExecutarTransferencia;
+import com.inter.java.challenge.workflows.transferencia.MovimentarSaldo;
+import com.inter.java.challenge.workflows.transferencia.PrepararTransferencia;
+import com.inter.java.challenge.workflows.transferencia.ValidarContextoTransferencia;
 import com.inter.java.challenge.workflows.validator.validarTransferencia.ValidarTransferencia;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -83,6 +89,8 @@ class TransferenciaBusinessTest {
     @Mock
     private ValidarTransferencia validarTransferencia;
     @Mock
+    private BuscarUsuario buscarUsuario;
+    @Mock
     private CreditarTransacao creditarTransacao;
     @Mock
     private DebitarTransacao debitarTransacao;
@@ -105,19 +113,42 @@ class TransferenciaBusinessTest {
                 carteira(DESTINO_ID, "1000.00", "200.0000")
         );
 
+        PrepararTransferencia prepararTransferencia =
+                new PrepararTransferencia(
+                        buscarCotacaoDolar,
+                        calcularValores,
+                        CLOCK
+                );
+        ValidarContextoTransferencia validarContexto =
+                new ValidarContextoTransferencia(
+                        buscarCarteira,
+                        consultarTotalTransferidoHoje,
+                        validarTransferencia,
+                        buscarUsuario
+                );
+        MovimentarSaldo movimentarSaldo =
+                new MovimentarSaldo(
+                        debitarTransacao,
+                        creditarTransacao
+                );
+        ConcluirTransferencia concluirTransferencia =
+                new ConcluirTransferencia(
+                        transferenciaFactory,
+                        transferenciaRepository,
+                        resultadoFactory,
+                        CLOCK
+                );
+        ExecutarTransferencia executarTransferencia =
+                new ExecutarTransferencia(
+                        validarContexto,
+                        movimentarSaldo,
+                        concluirTransferencia
+                );
+
         transferenciaBusiness = new TransferenciaBusiness(
-                buscarCotacaoDolar,
                 transferenciaMapper,
-                CLOCK,
-                transferenciaRepository,
-                transferenciaFactory,
-                resultadoFactory,
-                buscarCarteira,
-                consultarTotalTransferidoHoje,
-                validarTransferencia,
-                creditarTransacao,
-                debitarTransacao,
-                calcularValores
+                prepararTransferencia,
+                executarTransferencia
         );
     }
 

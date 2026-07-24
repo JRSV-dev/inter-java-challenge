@@ -5,7 +5,6 @@ import com.inter.java.challenge.data.enums.StatusTransferencia;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
 
 public record TransferenciaResultado(
         Long id,

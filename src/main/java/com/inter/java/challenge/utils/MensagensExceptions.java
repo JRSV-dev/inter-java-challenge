@@ -14,6 +14,9 @@ public enum MensagensExceptions {
     CARTEIRA_NAO_CADASTRADA_USUARIO("Nenhuma carteira foi encontrada para o usuário informado."),
     SALDO_INSUFICIENTE("Saldo insuficiente para realizar a transferência."),
     LIMITE_TRANSFERENCIA_EXCEDIDO("Limite diário de transferência excedido."),
+    ATUALIZACAO_CARTEIRA_INCONSISTENTE(
+            "Não foi possível atualizar a carteira de forma consistente."
+    ),
     COTACAO_INDISPONIVEL("Nenhuma cotação disponível foi encontrada.")
     ;
 

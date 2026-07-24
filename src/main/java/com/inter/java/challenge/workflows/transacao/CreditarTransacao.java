@@ -7,6 +7,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import static com.inter.java.challenge.workflows.transacao.ResultadoAtualizacao.validar;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -15,7 +17,7 @@ public class CreditarTransacao {
 
     public void executar(TransferirDinheiro model, ValoresTransferencia valores) {
         log.info("Creditando saldo conta destino.");
-        switch (model.moedaOrigem()) {
+        int quantidadeAtualizada = switch (model.moedaOrigem()) {
             case REAL -> carteiraRepository.creditarSaldoDolar(
                     model.usuarioDestinoId(),
                     valores.valorDolar()
@@ -24,6 +26,7 @@ public class CreditarTransacao {
                     model.usuarioDestinoId(),
                     valores.valorReal()
             );
-        }
+        };
+        validar(quantidadeAtualizada);
     }
 }

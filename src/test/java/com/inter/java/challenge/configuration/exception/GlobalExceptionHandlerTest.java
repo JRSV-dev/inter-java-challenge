@@ -1,5 +1,6 @@
 package com.inter.java.challenge.configuration.exception;
 
+import com.inter.java.challenge.configuration.exception.exceptions.AtualizacaoCarteiraInconsistenteException;
 import com.inter.java.challenge.configuration.exception.exceptions.CarteiraNaoEncontrada;
 import com.inter.java.challenge.configuration.exception.exceptions.CotacaoIndisponivelException;
 import com.inter.java.challenge.configuration.exception.exceptions.IdentificadorInvalidoException;
@@ -85,6 +86,12 @@ class GlobalExceptionHandlerTest {
                         409,
                         "USUARIO_IDENTIFICADOR_JA_CADASTRADO",
                         "Usuário já cadastrado com este identificador."
+                ),
+                arguments(
+                        new AtualizacaoCarteiraInconsistenteException(),
+                        409,
+                        "ATUALIZACAO_CARTEIRA_INCONSISTENTE",
+                        "Não foi possível atualizar a carteira de forma consistente."
                 ),
                 arguments(
                         new SaldoInsuficienteException(),
