@@ -1,15 +1,13 @@
 package com.inter.java.challenge.data.model;
 
 import com.inter.java.challenge.data.enums.TipoUsuario;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Getter
 @Setter
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class Usuario {
