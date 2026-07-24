@@ -25,7 +25,7 @@ public class LimiteDiarioRegra implements RegraTransferencia<ContextoTransferenc
 
         BigDecimal totalProjetado = contexto
                 .totalTransferidoHoje()
-                .add(contexto.model().valorReal());
+                .add(contexto.valores().valorReal());
 
         if (totalProjetado.compareTo(limite) > 0) {
             log.info("Sem limite disponível.");

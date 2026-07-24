@@ -17,8 +17,11 @@ public class SaldoSuficienteRegra implements RegraTransferencia<ContextoTransfer
     public void validar(ContextoTransferencia contexto) {
 
         log.info("Validando saldo suficiente");
-        BigDecimal saldoAtual = contexto.carteiraOrigem().getSaldoReal();
-        BigDecimal valorTransferencia = contexto.model().valorReal();
+        BigDecimal saldoAtual = switch (contexto.model().moedaOrigem()) {
+            case REAL -> contexto.carteiraOrigem().getSaldoReal();
+            case DOLAR -> contexto.carteiraOrigem().getSaldoDolar();
+        };
+        BigDecimal valorTransferencia = contexto.model().valor();
 
         if (saldoAtual.compareTo(valorTransferencia) < 0) {
             throw new SaldoInsuficienteException();

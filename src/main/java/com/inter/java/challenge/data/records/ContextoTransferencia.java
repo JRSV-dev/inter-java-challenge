@@ -7,6 +7,7 @@ import java.math.BigDecimal;
 
 public record ContextoTransferencia(
         TransferirDinheiro model,
+        ValoresTransferencia valores,
         CarteiraTransferencia carteiraOrigem,
         BigDecimal totalTransferidoHoje
 ) {

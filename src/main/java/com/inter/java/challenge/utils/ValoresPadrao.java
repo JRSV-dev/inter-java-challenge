@@ -12,5 +12,6 @@ public class ValoresPadrao {
     public static final BigDecimal VALOR_MAXIMO_TRANSFERECIA_PJ = new BigDecimal("50000.00");
 
 
+    public static final int CASAS_DECIMAIS_REAL = 2;
     public static final int CASAS_DECIMAIS_DOLAR = 4;
 }

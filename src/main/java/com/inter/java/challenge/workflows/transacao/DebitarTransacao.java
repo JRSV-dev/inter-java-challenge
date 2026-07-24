@@ -16,6 +16,16 @@ public class DebitarTransacao implements Transacao {
     @Override
     public void executar(TransferirDinheiro model) {
         log.info("Debitando saldo devedor da conta origem.");
-        carteiraRepository.debitarSaldoReal(model.usuarioOrigemId(), model.valorReal());
+        switch (model.moedaOrigem()) {
+            case REAL -> carteiraRepository.debitarSaldoReal(
+                    model.usuarioOrigemId(),
+                    model.valor()
+            );
+            case DOLAR -> carteiraRepository.debitarSaldoDolar(
+                    model.usuarioOrigemId(),
+                    model.valor()
+            );
+        };
+
     }
 }

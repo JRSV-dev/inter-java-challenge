@@ -90,19 +90,28 @@
     </select>
 
     <update id="debitarSaldoReal">
-
         UPDATE CARTEIRAS
-        SET SALDO_REAIS = SALDO_REAIS - #{valorReal}
+        SET SALDO_REAIS = SALDO_REAIS - #{valor}
         WHERE USUARIO_ID = #{usuarioId}
-        AND SALDO_REAIS >= #{valorReal}
+        AND SALDO_REAIS >= #{valor}
+    </update>
 
+    <update id="debitarSaldoDolar">
+        UPDATE CARTEIRAS
+        SET SALDO_DOLARES = SALDO_DOLARES - #{valor}
+        WHERE USUARIO_ID = #{usuarioId}
+        AND SALDO_DOLARES >= #{valor}
+    </update>
+
+    <update id="creditarSaldoReal">
+        UPDATE CARTEIRAS
+        SET SALDO_REAIS = SALDO_REAIS + #{valorReal}
+        WHERE USUARIO_ID = #{usuarioId}
     </update>
 
     <update id="creditarSaldoDolar">
-
         UPDATE CARTEIRAS
         SET SALDO_DOLARES = SALDO_DOLARES + #{valorDolar}
         WHERE USUARIO_ID = #{usuarioId}
-
     </update>
 </mapper>

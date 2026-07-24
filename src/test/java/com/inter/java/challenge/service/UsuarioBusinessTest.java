@@ -223,8 +223,11 @@ class UsuarioBusinessTest {
             when(passwordEncoder.encode(request.getSenha()))
                     .thenReturn("senha-criptografada");
 
-            when(usuarioRepository.salvarNovoUsuario(usuarioModel))
-                    .thenReturn(usuarioId);
+            doAnswer(invocacao -> {
+                Usuario usuarioPersistido = invocacao.getArgument(0);
+                usuarioPersistido.setId(usuarioId);
+                return usuarioId;
+            }).when(usuarioRepository).salvarNovoUsuario(usuarioModel);
 
             when(buscarUsuario.buscarPorId(usuarioId))
                     .thenReturn(usuarioSalvo);
@@ -322,8 +325,11 @@ class UsuarioBusinessTest {
             when(passwordEncoder.encode(request.getSenha()))
                     .thenReturn("senha-criptografada");
 
-            when(usuarioRepository.salvarNovoUsuario(usuarioModel))
-                    .thenReturn(usuarioId);
+            doAnswer(invocacao -> {
+                Usuario usuarioPersistido = invocacao.getArgument(0);
+                usuarioPersistido.setId(usuarioId);
+                return usuarioId;
+            }).when(usuarioRepository).salvarNovoUsuario(usuarioModel);
 
             when(buscarUsuario.buscarPorId(usuarioId))
                     .thenReturn(usuarioSalvo);

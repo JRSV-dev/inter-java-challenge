@@ -11,6 +11,7 @@ import com.inter.java.challenge.workflows.buscar.buscarCarteira.BuscarCarteira;
 import com.inter.java.challenge.workflows.buscar.buscarCotacao.BuscarCotacaoDolar;
 import com.inter.java.challenge.workflows.buscar.totalTransfereciaDia.ConsultarTotalTransferidoHoje;
 import com.inter.java.challenge.workflows.cambio.CalculadoraCambio;
+import com.inter.java.challenge.workflows.cambio.CalcularValorTransferenciaCotacao;
 import com.inter.java.challenge.workflows.factory.ResultadoFactory;
 import com.inter.java.challenge.workflows.factory.TransfereciaFactory;
 import com.inter.java.challenge.workflows.transacao.CreditarTransacao;
@@ -24,8 +25,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
-import static java.time.LocalDateTime.now;
 
 @Slf4j
 @Service
@@ -33,7 +34,6 @@ import static java.time.LocalDateTime.now;
 public class TransferenciaBusiness {
 
     private final BuscarCotacaoDolar buscarCotacaoDolar;
-    private final CalculadoraCambio calculadoraCambio;
     public final TransferenciaMapper transferenciaMapper;
     private final Clock clock;
     private final TransferenciaRepository transferenciaRepository;
@@ -44,29 +44,45 @@ public class TransferenciaBusiness {
     private final ValidarTransferencia validarTransferencia;
     private final CreditarTransacao creditarTransacao;
     private final DebitarTransacao debitarTransacao;
+    private final CalcularValorTransferenciaCotacao calcularValores;
 
     @Transactional
     public TransferenciaResponse transferir(TransferenciaRequest transferenciaRequest) {
         TransferirDinheiro model = transferenciaMapper.requestParaModel(transferenciaRequest);
         LocalDate dataReferencia = LocalDate.now(clock);
         CotacaoDolar cotacao = buscarCotacaoDolar.buscar(dataReferencia);
-        BigDecimal valorDolar = calculadoraCambio.converterRealParaDolar(model.valorReal(), cotacao.cotacaoCompra());
-        TransferenciaResultado response = executar(model, cotacao, valorDolar);
+        ValoresTransferencia valores = calcularValores.calcular(model, cotacao);
+        TransferenciaResultado response = executar(model, cotacao, valores);
         return transferenciaMapper.resultadoParaResponse(response);
     }
 
 
-    public TransferenciaResultado executar(TransferirDinheiro model, CotacaoDolar cotacao, BigDecimal valorDolar) {
+    public TransferenciaResultado executar(
+            TransferirDinheiro model,
+            CotacaoDolar cotacao,
+            ValoresTransferencia valores
+    ) {
         CarteirasTransferencia carteiras = buscarCarteira.bloquear(model);
         BigDecimal totalTransferidoHoje = consultarTotalTransferidoHoje.consultar(model.usuarioOrigemId());
-        ContextoTransferencia contexto = new ContextoTransferencia(model, carteiras.origem(), totalTransferidoHoje);
+        ContextoTransferencia contexto = new ContextoTransferencia(
+                model,
+                valores,
+                carteiras.origem(),
+                totalTransferidoHoje
+        );
         validarTransferencia.validar(contexto);
         debitarTransacao.executar(model);
-        creditarTransacao.executar(model);
-        Transferencia transferencia = criarTransferenciaFactory.criar(model, cotacao, valorDolar, now());
+        creditarTransacao.executar(model, valores);
+        Transferencia transferencia = criarTransferenciaFactory.criar(
+                model,
+                cotacao,
+                valores,
+                LocalDateTime.now(clock)
+        );
         transferenciaRepository.salvarTransferencia(transferencia);
         return criarResultadoFactory.criar(transferencia);
     }
+
 
 
 }

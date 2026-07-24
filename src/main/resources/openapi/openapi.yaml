@@ -269,25 +269,26 @@ components:
       required:
         - usuarioOrigemId
         - usuarioDestinoId
-        - valorReal
+        - valor
+        - moedaOrigem
       properties:
         usuarioOrigemId:
           type: integer
           format: int64
           example: 1
-
         usuarioDestinoId:
           type: integer
           format: int64
           example: 2
-
-        valorReal:
+        valor:
           type: number
+          exclusiveMinimum: 0
           example: 1000.00
-
-        valorDolar:
-          type: number
-          example: 1000.00
+        moedaOrigem:
+          type: string
+          enum:
+            - REAL
+            - DOLAR
 
     TransferenciaResponse:
         type: object

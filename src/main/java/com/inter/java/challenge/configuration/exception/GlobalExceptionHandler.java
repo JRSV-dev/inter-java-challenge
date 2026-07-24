@@ -30,7 +30,7 @@ public final class GlobalExceptionHandler {
                 exception.getMessage()
         );
 
-        var response = new ApiErrorResponse(
+        ApiErrorResponse response = new ApiErrorResponse(
                 LocalDateTime.now(),
                 exception.getStatus(),
                 exception.getCodigo(),
