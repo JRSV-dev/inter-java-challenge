@@ -17,5 +17,5 @@ public class Carteira {
     private Long usuarioId;
     private BigDecimal saldoReais;
     private BigDecimal saldoDolares;
-    private OffsetDateTime dataAtualizacao;
+    private LocalDateTime dataAtualizacao;
 }

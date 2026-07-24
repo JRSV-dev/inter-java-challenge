@@ -20,8 +20,6 @@
         <result property="saldoDolares"
                 column="saldo_dolares"/>
 
-        <result property="dataAtualizacao"
-                column="data_atualizacao"/>
 
     </resultMap>
 
@@ -33,14 +31,11 @@
         ID,
         USUARIO_ID,
         SALDO_REAIS,
-        SALDO_DOLARES,
-        DATA_ATUALIZACAO
+        SALDO_DOLARES
         FROM CARTEIRAS
         WHERE USUARIO_ID = #{usuarioId}
 
     </select>
-
-
     <insert id="salvarNovaCarteira"
             parameterType="com.inter.java.challenge.data.model.Carteira"
             useGeneratedKeys="true"
@@ -57,8 +52,57 @@
         #{saldoReais},
         #{saldoDolares}
         )
-
     </insert>
 
 
+    <resultMap
+            id="carteiraTransferenciaResultMap"
+            type="com.inter.java.challenge.data.model.CarteiraTransferencia">
+
+        <id property="carteiraId" column="carteira_id"/>
+
+        <result property="usuarioId" column="usuario_id"/>
+        <result property="tipoUsuario" column="tipo_usuario"/>
+        <result property="saldoReal" column="saldo_real"/>
+        <result property="saldoDolar" column="saldo_dolar"/>
+
+    </resultMap>
+
+    <select
+            id="bloquearCarteiras"
+            resultMap="carteiraTransferenciaResultMap">
+
+        SELECT
+        C.ID AS carteira_id,
+        C.USUARIO_ID AS usuario_id,
+        U.TIPO_USUARIO AS tipo_usuario,
+        C.SALDO_REAIS AS saldo_real,
+        C.SALDO_DOLARES AS saldo_dolar
+        FROM CARTEIRAS C
+        INNER JOIN USUARIOS U
+        ON U.ID = C.USUARIO_ID
+        WHERE
+        U.ID = #{usuarioOrigemId}
+        OR U.ID = #{usuarioDestinoId}
+        ORDER BY U.ID
+        FOR UPDATE
+
+    </select>
+
+    <update id="debitarSaldoReal">
+
+        UPDATE CARTEIRAS
+        SET SALDO_REAIS = SALDO_REAIS - #{valorReal}
+        WHERE USUARIO_ID = #{usuarioId}
+        AND SALDO_REAIS >= #{valorReal}
+
+    </update>
+
+    <update id="creditarSaldoDolar">
+
+        UPDATE CARTEIRAS
+        SET SALDO_DOLARES = SALDO_DOLARES + #{valorDolar}
+        WHERE USUARIO_ID = #{usuarioId}
+
+    </update>
 </mapper>

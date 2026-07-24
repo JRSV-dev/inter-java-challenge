@@ -5,7 +5,6 @@ import com.inter.java.challenge.api.model.UsuarioRequest;
 import com.inter.java.challenge.workflows.validator.validarUsuarioRequest.validacoes.Validador;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-
 import java.util.List;
 
 @Component

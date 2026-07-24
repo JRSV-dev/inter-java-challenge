@@ -10,6 +10,7 @@ servers:
 
 tags:
   - name: Usuarios
+  - name: Transferencias
 
 paths:
 
@@ -120,7 +121,37 @@ paths:
 
         '404':
           description: Usuário não encontrado.
+  /transferencias:
+    post:
+      tags:
+        - Transferencias
+      summary: Realizar transferência entre usuários
+      operationId: realizarTransferencia
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransferenciaRequest'
+      responses:
+        '201':
+          description: Transferência realizada com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransferenciaResponse'
 
+        '400':
+          description: Requisição inválida
+
+        '404':
+          description: Usuário ou carteira não encontrada
+
+        '422':
+          description: Saldo insuficiente ou limite diário excedido
+
+        '503':
+          description: Cotação indisponível
 components:
 
   schemas:
@@ -233,3 +264,75 @@ components:
           type: string
           format: date-time
           example: "2026-07-23T20:30:00"
+    TransferenciaRequest:
+      type: object
+      required:
+        - usuarioOrigemId
+        - usuarioDestinoId
+        - valorReal
+      properties:
+        usuarioOrigemId:
+          type: integer
+          format: int64
+          example: 1
+
+        usuarioDestinoId:
+          type: integer
+          format: int64
+          example: 2
+
+        valorReal:
+          type: number
+          minimum: 0.01
+          multipleOf: 0.01
+          example: 1000.00
+
+    TransferenciaResponse:
+        type: object
+        required:
+          - id
+          - usuarioOrigemId
+          - usuarioDestinoId
+          - valorReal
+          - valorDolar
+          - cotacaoCompra
+          - dataCotacao
+          - dataTransferencia
+          - status
+        properties:
+          id:
+            type: integer
+            format: int64
+
+          usuarioOrigemId:
+            type: integer
+            format: int64
+
+          usuarioDestinoId:
+            type: integer
+            format: int64
+
+          valorReal:
+            type: number
+            example: 1000.00
+
+          valorDolar:
+            type: number
+            example: 192.3077
+
+          cotacaoCompra:
+            type: number
+            example: 5.200000
+
+          dataCotacao:
+            type: string
+            format: date
+
+          dataTransferencia:
+            type: string
+            format: date-time
+
+          status:
+            type: string
+            enum:
+              - CONCLUIDA

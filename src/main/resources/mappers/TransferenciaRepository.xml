@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.inter.java.challenge.repository.TransferenciaRepository">
+
+    <select
+            id="buscarTotalTransferidoNoPeriodo"
+            resultType="java.math.BigDecimal">
+
+        SELECT COALESCE(SUM(VALOR_REAL), 0)
+        FROM TRANSFERENCIAS
+        WHERE USUARIO_ORIGEM_ID = #{usuarioId}
+        AND STATUS = 'CONCLUIDA'
+        AND DATA_TRANSFERENCIA BETWEEN #{inicio} AND #{fim}
+
+    </select>
+
+    <insert
+            id="salvarTransferencia"
+            parameterType="com.inter.java.challenge.data.model.Transferencia"
+            useGeneratedKeys="true"
+            keyProperty="id"
+            keyColumn="ID">
+
+        INSERT INTO TRANSFERENCIAS (
+        USUARIO_ORIGEM_ID,
+        USUARIO_DESTINO_ID,
+        VALOR_REAL,
+        VALOR_DOLAR,
+        COTACAO_COMPRA,
+        DATA_COTACAO,
+        DATA_TRANSFERENCIA,
+        STATUS
+        )
+        VALUES (
+        #{usuarioOrigemId},
+        #{usuarioDestinoId},
+        #{valorReal},
+        #{valorDolar},
+        #{cotacaoCompra},
+        #{dataCotacao},
+        #{dataTransferencia},
+        #{status}
+        )
+
+    </insert>
+
+</mapper>
