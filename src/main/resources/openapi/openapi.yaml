@@ -10,6 +10,7 @@ servers:
 
 tags:
   - name: Usuarios
+  - name: Transferencias
 
 paths:
 
@@ -50,7 +51,7 @@ paths:
     post:
       tags:
         - Usuarios
-      summary: Cria um novo usuário.
+      summary: Cria um novo usuário
       operationId: salvarUsuario
       requestBody:
         required: true
@@ -66,6 +67,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UsuarioResponse'
+        '400':
+          $ref: '#/components/responses/RequisicaoInvalida'
+        '409':
+          $ref: '#/components/responses/ConflitoDeDados'
 
   /usuarios/{id}:
 
@@ -92,7 +97,7 @@ paths:
                 $ref: '#/components/schemas/UsuarioResponse'
 
         '404':
-          description: Usuário não encontrado.
+          $ref: '#/components/responses/RecursoNaoEncontrado'
 
 
   /usuarios/{id}/carteira:
@@ -119,11 +124,243 @@ paths:
                 $ref: '#/components/schemas/CarteiraResponse'
 
         '404':
-          description: Usuário não encontrado.
+          $ref: '#/components/responses/RecursoNaoEncontrado'
+  /transferencias:
+    post:
+      tags:
+        - Transferencias
+      summary: Realizar transferência entre usuários
+      operationId: realizarTransferencia
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransferenciaRequest'
+      responses:
+        '201':
+          description: Transferência realizada com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransferenciaResponse'
 
+        '400':
+          $ref: '#/components/responses/RequisicaoInvalida'
+
+        '404':
+          $ref: '#/components/responses/RecursoNaoEncontrado'
+
+        '409':
+          $ref: '#/components/responses/ConflitoDeDados'
+
+        '422':
+          $ref: '#/components/responses/RegraDeNegocioInvalida'
+
+        '503':
+          $ref: '#/components/responses/ServicoIndisponivel'
+
+        '500':
+          $ref: '#/components/responses/ErroInterno'
 components:
 
+  responses:
+    RequisicaoInvalida:
+      description: Requisição ausente, malformada ou com campos inválidos.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/BadRequestErrorResponse'
+
+    RecursoNaoEncontrado:
+      description: Usuário, carteira ou recurso não encontrado.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/NotFoundErrorResponse'
+
+    ConflitoDeDados:
+      description: >
+        E-mail, CPF, CNPJ ou atualização inconsistente de carteira.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ConflictErrorResponse'
+
+    RegraDeNegocioInvalida:
+      description:
+        Regra de negócio da transferência não atendida. Tanto saldo
+        insuficiente quanto limite diário excedido retornam HTTP 422.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/UnprocessableEntityErrorResponse'
+
+    ServicoIndisponivel:
+      description: Cotação do Banco Central indisponível.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ServiceUnavailableErrorResponse'
+
+    ErroInterno:
+      description: Erro interno inesperado.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/InternalServerErrorResponse'
+
   schemas:
+
+    ApiErrorResponse:
+      type: object
+      required:
+        - timestamp
+        - status
+        - codigo
+        - mensagem
+        - path
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+        status:
+          type: integer
+        codigo:
+          type: string
+          description: Código estável e específico do erro.
+        mensagem:
+          type: string
+        path:
+          type: string
+
+    BadRequestErrorResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiErrorResponse'
+        - type: object
+          properties:
+            status:
+              type: integer
+              example: 400
+            codigo:
+              type: string
+              enum:
+                - DADOS_INVALIDOS
+                - REQUISICAO_INVALIDA
+                - IDENTIFICADOR_INVALIDO
+              example: DADOS_INVALIDOS
+            mensagem:
+              type: string
+              example: Valor deve ser maior que zero
+            path:
+              type: string
+              example: /transferencias
+
+    NotFoundErrorResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiErrorResponse'
+        - type: object
+          properties:
+            status:
+              type: integer
+              example: 404
+            codigo:
+              type: string
+              enum:
+                - USUARIO_NAO_ENCONTRADO
+                - CARTEIRA_NAO_ENCONTRADA
+                - RECURSO_NAO_ENCONTRADO
+              example: USUARIO_NAO_ENCONTRADO
+            mensagem:
+              type: string
+              example: Usuário não encontrado.
+            path:
+              type: string
+              example: /usuarios/99
+
+    ConflictErrorResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiErrorResponse'
+        - type: object
+          properties:
+            status:
+              type: integer
+              example: 409
+            codigo:
+              type: string
+              enum:
+                - USUARIO_EMAIL_JA_CADASTRADO
+                - USUARIO_IDENTIFICADOR_JA_CADASTRADO
+                - ATUALIZACAO_CARTEIRA_INCONSISTENTE
+                - CONFLITO_DE_DADOS
+              example: USUARIO_EMAIL_JA_CADASTRADO
+            mensagem:
+              type: string
+              example: Usuário já cadastrado com este e-mail.
+            path:
+              type: string
+              example: /usuarios
+
+    UnprocessableEntityErrorResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiErrorResponse'
+        - type: object
+          properties:
+            status:
+              type: integer
+              example: 422
+            codigo:
+              type: string
+              enum:
+                - SALDO_INSUFICIENTE
+                - LIMITE_DIARIO_EXCEDIDO
+              example: SALDO_INSUFICIENTE
+            mensagem:
+              type: string
+              example: Saldo insuficiente para realizar a transferência.
+            path:
+              type: string
+              example: /transferencias
+
+    ServiceUnavailableErrorResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiErrorResponse'
+        - type: object
+          properties:
+            status:
+              type: integer
+              example: 503
+            codigo:
+              type: string
+              enum:
+                - COTACAO_INDISPONIVEL
+              example: COTACAO_INDISPONIVEL
+            mensagem:
+              type: string
+              example: Nenhuma cotação disponível foi encontrada.
+            path:
+              type: string
+              example: /transferencias
+
+    InternalServerErrorResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiErrorResponse'
+        - type: object
+          properties:
+            status:
+              type: integer
+              example: 500
+            codigo:
+              type: string
+              enum:
+                - ERRO_INTERNO
+              example: ERRO_INTERNO
+            mensagem:
+              type: string
+              example: Ocorreu um erro interno inesperado.
+            path:
+              type: string
+              example: /transferencias
 
     UsuarioResponse:
       type: object
@@ -139,13 +376,18 @@ components:
 
         email:
           type: string
-          description: Email de acesso do usuário.
+          description:
+            E-mail de acesso do usuário. O valor é normalizado removendo espaços
+            externos e convertendo os caracteres para minúsculas.
           format: email
 
         identificador:
           type: string
-          description: CPF ou CNPJ do usuáiro.
+          description:
+            CPF ou CNPJ sem pontuação. Além do formato, os dígitos verificadores
+            são validados.
           pattern: '^(\d{11}|\d{14})$'
+          example: '52998224725'
 
         tipoUsuario:
           type: string
@@ -167,13 +409,19 @@ components:
 
         email:
           type: string
-          description: Email de acesso do usuário.
+          description:
+            E-mail de acesso do usuário. O valor é normalizado removendo espaços
+            externos e convertendo os caracteres para minúsculas.
           format: email
+          x-extra-annotation: '@com.fasterxml.jackson.databind.annotation.JsonDeserialize(using = com.inter.java.challenge.configuration.jackson.EmailNormalizadoDeserializer.class)'
 
         identificador:
           type: string
-          description: CPF ou CNPJ do usuáiro.
+          description:
+            CPF ou CNPJ sem pontuação. Além do formato, os dígitos verificadores
+            são validados.
           pattern: '^(\d{11}|\d{14})$'
+          example: '52998224725'
 
         senha:
           type: string
@@ -205,7 +453,6 @@ components:
         - usuarioId
         - saldoReais
         - saldoDolares
-        - dataAtualizacao
       properties:
         id:
           type: integer
@@ -228,8 +475,78 @@ components:
           minimum: 0
           multipleOf: 0.01
           example: 300.00
-
-        dataAtualizacao:
+    TransferenciaRequest:
+      type: object
+      required:
+        - usuarioOrigemId
+        - usuarioDestinoId
+        - valor
+        - moedaOrigem
+      properties:
+        usuarioOrigemId:
+          type: integer
+          format: int64
+          example: 1
+        usuarioDestinoId:
+          type: integer
+          format: int64
+          example: 2
+        valor:
+          type: number
+          exclusiveMinimum: 0
+          example: 1000.00
+        moedaOrigem:
           type: string
-          format: date-time
-          example: "2026-07-23T20:30:00"
+          enum:
+            - REAL
+            - DOLAR
+
+    TransferenciaResponse:
+        type: object
+        required:
+          - id
+          - usuarioOrigemId
+          - usuarioDestinoId
+          - valorReal
+          - valorDolar
+          - cotacaoCompra
+          - dataCotacao
+          - dataTransferencia
+          - status
+        properties:
+          id:
+            type: integer
+            format: int64
+
+          usuarioOrigemId:
+            type: integer
+            format: int64
+
+          usuarioDestinoId:
+            type: integer
+            format: int64
+
+          valorReal:
+            type: number
+            example: 1000.00
+
+          valorDolar:
+            type: number
+            example: 192.3077
+
+          cotacaoCompra:
+            type: number
+            example: 5.200000
+
+          dataCotacao:
+            type: string
+            format: date
+
+          dataTransferencia:
+            type: string
+            format: date-time
+
+          status:
+            type: string
+            enum:
+              - CONCLUIDA

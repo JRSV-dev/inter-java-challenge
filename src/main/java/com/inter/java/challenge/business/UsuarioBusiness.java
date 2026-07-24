@@ -10,7 +10,7 @@ import com.inter.java.challenge.mapper.UsuarioMapper;
 import com.inter.java.challenge.data.model.Usuario;
 import com.inter.java.challenge.repository.CarteiraRepository;
 import com.inter.java.challenge.repository.UsuarioRepository;
-import com.inter.java.challenge.workflows.buscar.buscarUsuario.BuscarCarteira;
+import com.inter.java.challenge.workflows.buscar.buscarCarteira.BuscarCarteira;
 import com.inter.java.challenge.workflows.buscar.buscarUsuario.BuscarUsuario;
 import com.inter.java.challenge.workflows.factory.CarteiraFactory;
 import com.inter.java.challenge.workflows.factory.PaginaUsuarioVaziaFactory;
@@ -19,6 +19,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import static com.inter.java.challenge.utils.NormalizadorEmail.normalizar;
 
 
 @Service
@@ -44,20 +46,17 @@ public class UsuarioBusiness {
     public PaginaUsuario buscarUsuarios(Integer pagina, Integer quantidadePorPagina) {
         return  usuarioRepository.buscarTodosUsuarios(quantidadePorPagina,pagina)
                 .map(usuarioMapper::modelPaginaParaResponse)
-                .orElseGet(() ->
-                paginaUsuarioFactory.criarRetornoVazio(
-                        pagina,
-                        quantidadePorPagina
-                )
-        );
+                .orElseGet(() -> paginaUsuarioFactory.criarRetornoVazio(pagina, quantidadePorPagina));
     }
 
     @Transactional
     public UsuarioResponse salvarNovoUsuario(UsuarioRequest usuarioRequest) {
+        usuarioRequest.setEmail(normalizar(usuarioRequest.getEmail()));
         criacaoUsuarioValidador.validar(usuarioRequest);
         Usuario model = usuarioMapper.requestParaModel(usuarioRequest);
         model.setSenha(passwordEncoder.encode(usuarioRequest.getSenha()));
-        Long usuarioId = usuarioRepository.salvarNovoUsuario(model);
+        usuarioRepository.salvarNovoUsuario(model);
+        Long usuarioId = model.getId();
         Usuario usuarioSalvo = buscarUsuario.buscarPorId(usuarioId);
         Carteira carteira = carteiraFactory.criarParaUsuario(usuarioId);
         carteiraRepository.salvarNovaCarteira(carteira);

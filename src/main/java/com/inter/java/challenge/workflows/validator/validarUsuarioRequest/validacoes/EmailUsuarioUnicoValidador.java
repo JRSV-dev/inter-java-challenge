@@ -9,7 +9,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 @Component
-@Order(1)
+@Order(2)
 @RequiredArgsConstructor
 public class EmailUsuarioUnicoValidador
         implements Validador<UsuarioRequest> {

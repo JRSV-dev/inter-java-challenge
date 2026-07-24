@@ -12,7 +12,7 @@ import com.inter.java.challenge.mapper.CarteiraMapper;
 import com.inter.java.challenge.mapper.UsuarioMapper;
 import com.inter.java.challenge.repository.CarteiraRepository;
 import com.inter.java.challenge.repository.UsuarioRepository;
-import com.inter.java.challenge.workflows.buscar.buscarUsuario.BuscarCarteira;
+import com.inter.java.challenge.workflows.buscar.buscarCarteira.BuscarCarteira;
 import com.inter.java.challenge.workflows.buscar.buscarUsuario.BuscarUsuario;
 import com.inter.java.challenge.workflows.factory.CarteiraFactory;
 import com.inter.java.challenge.workflows.factory.PaginaUsuarioVaziaFactory;
@@ -223,8 +223,11 @@ class UsuarioBusinessTest {
             when(passwordEncoder.encode(request.getSenha()))
                     .thenReturn("senha-criptografada");
 
-            when(usuarioRepository.salvarNovoUsuario(usuarioModel))
-                    .thenReturn(usuarioId);
+            doAnswer(invocacao -> {
+                Usuario usuarioPersistido = invocacao.getArgument(0);
+                usuarioPersistido.setId(usuarioId);
+                return usuarioId;
+            }).when(usuarioRepository).salvarNovoUsuario(usuarioModel);
 
             when(buscarUsuario.buscarPorId(usuarioId))
                     .thenReturn(usuarioSalvo);
@@ -322,8 +325,11 @@ class UsuarioBusinessTest {
             when(passwordEncoder.encode(request.getSenha()))
                     .thenReturn("senha-criptografada");
 
-            when(usuarioRepository.salvarNovoUsuario(usuarioModel))
-                    .thenReturn(usuarioId);
+            doAnswer(invocacao -> {
+                Usuario usuarioPersistido = invocacao.getArgument(0);
+                usuarioPersistido.setId(usuarioId);
+                return usuarioId;
+            }).when(usuarioRepository).salvarNovoUsuario(usuarioModel);
 
             when(buscarUsuario.buscarPorId(usuarioId))
                     .thenReturn(usuarioSalvo);

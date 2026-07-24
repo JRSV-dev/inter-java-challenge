@@ -39,8 +39,6 @@
         WHERE USUARIO_ID = #{usuarioId}
 
     </select>
-
-
     <insert id="salvarNovaCarteira"
             parameterType="com.inter.java.challenge.data.model.Carteira"
             useGeneratedKeys="true"
@@ -57,8 +55,70 @@
         #{saldoReais},
         #{saldoDolares}
         )
-
     </insert>
 
 
+    <resultMap
+            id="carteiraTransferenciaResultMap"
+            type="com.inter.java.challenge.data.model.CarteiraTransferencia">
+
+        <id property="carteiraId" column="carteira_id"/>
+
+        <result property="usuarioId" column="usuario_id"/>
+        <result property="tipoUsuario" column="tipo_usuario"/>
+        <result property="saldoReal" column="saldo_real"/>
+        <result property="saldoDolar" column="saldo_dolar"/>
+
+    </resultMap>
+
+    <select
+            id="bloquearCarteiras"
+            resultMap="carteiraTransferenciaResultMap">
+
+        SELECT
+        C.ID AS carteira_id,
+        C.USUARIO_ID AS usuario_id,
+        U.TIPO_USUARIO AS tipo_usuario,
+        C.SALDO_REAIS AS saldo_real,
+        C.SALDO_DOLARES AS saldo_dolar
+        FROM CARTEIRAS C
+        INNER JOIN USUARIOS U
+        ON U.ID = C.USUARIO_ID
+        WHERE
+        U.ID = #{usuarioOrigemId}
+        OR U.ID = #{usuarioDestinoId}
+        ORDER BY U.ID
+        FOR UPDATE
+
+    </select>
+
+    <update id="debitarSaldoReal">
+        UPDATE CARTEIRAS
+        SET SALDO_REAIS = SALDO_REAIS - #{valor},
+            DATA_ATUALIZACAO = CURRENT_TIMESTAMP
+        WHERE USUARIO_ID = #{usuarioId}
+        AND SALDO_REAIS >= #{valor}
+    </update>
+
+    <update id="debitarSaldoDolar">
+        UPDATE CARTEIRAS
+        SET SALDO_DOLARES = SALDO_DOLARES - #{valor},
+            DATA_ATUALIZACAO = CURRENT_TIMESTAMP
+        WHERE USUARIO_ID = #{usuarioId}
+        AND SALDO_DOLARES >= #{valor}
+    </update>
+
+    <update id="creditarSaldoReal">
+        UPDATE CARTEIRAS
+        SET SALDO_REAIS = SALDO_REAIS + #{valorReal},
+            DATA_ATUALIZACAO = CURRENT_TIMESTAMP
+        WHERE USUARIO_ID = #{usuarioId}
+    </update>
+
+    <update id="creditarSaldoDolar">
+        UPDATE CARTEIRAS
+        SET SALDO_DOLARES = SALDO_DOLARES + #{valorDolar},
+            DATA_ATUALIZACAO = CURRENT_TIMESTAMP
+        WHERE USUARIO_ID = #{usuarioId}
+    </update>
 </mapper>

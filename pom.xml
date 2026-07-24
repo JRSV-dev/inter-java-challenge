@@ -17,7 +17,7 @@
 
     <groupId>com.inter.java.challenge</groupId>
     <artifactId>inter-java-challenge</artifactId>
-    <version>1.0.1</version>
+    <version>1.2.7</version>
 
     <name>inter-java-challenge</name>
     <description>Desafio técnico Java - Inter</description>
@@ -35,6 +35,8 @@
         <build-helper-maven-plugin.version>
             3.6.0
         </build-helper-maven-plugin.version>
+        <spring-cloud.version>2025.0.0</spring-cloud.version>
+        <wiremock-spring-boot.version>4.0.9</wiremock-spring-boot.version>
     </properties>
 
     <dependencies>
@@ -42,6 +44,11 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-openfeign</artifactId>
         </dependency>
 
         <dependency>
@@ -92,11 +99,30 @@
         </dependency>
 
         <dependency>
+            <groupId>org.wiremock.integrations</groupId>
+            <artifactId>wiremock-spring-boot</artifactId>
+            <version>${wiremock-spring-boot.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-crypto</artifactId>
         </dependency>
 
     </dependencies>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>${spring-cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <build>
         <plugins>
@@ -179,6 +205,7 @@
                                 <useSpringBoot3>true</useSpringBoot3>
                                 <useTags>true</useTags>
                                 <useResponseEntity>false</useResponseEntity>
+                                <dateLibrary>java8-localdatetime</dateLibrary>
                             </configOptions>
                         </configuration>
                     </execution>
